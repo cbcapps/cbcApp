@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "15829897544",
+    "project_id": "cbcap-f93db",
+    "storage_bucket": "cbcap-f93db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:15829897544:android:1e9fd893816224d0be237d",
+        "android_client_info": {
+          "package_name": "com.ALi_Jaafar95.offer_APP"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkz8JnNLBeL7n1R_Ef52JqOPMb3fNi0Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
