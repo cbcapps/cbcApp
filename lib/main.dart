@@ -21,6 +21,7 @@ Future<void> setCount(int count) async {
   print('Sending new count: $count');
   sharedPreferences.setInt('unread_notifications_count', count);
 }
+
 int notificationCount = 0;
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(
