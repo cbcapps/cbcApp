@@ -5,57 +5,72 @@ import 'package:ui_ecommerce/CBC/models/Qr.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../Services/RemoteServices.dart';
 
-class HelpController extends GetxController  with SingleGetTickerProviderMixin{
+class HelpController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   TabController? tabController;
-  var isLoadingCallCenter= true.obs;
-  var isLoadingQr= true.obs;
+  var isLoadingCallCenter = true.obs;
+  var isLoadingQr = true.obs;
   var qrList = <QrModel>[].obs;
   var callCenterList = <CallCenterModel>[].obs;
   var details = [
     {'title': 'آبرز البطاقة عن الدفع مع هوية اثبات شخصية'},
     {'title': 'تستخدم البطاقة من قبلك فقط ولا يمكن استخدامها من قبل شخص اخر'},
-    {'title': 'اطلع بشكل دائمي على التطبيق لوجود تحديثات وعروض لفترات محدودة يمكنك الاستفادة منها'},
+    {
+      'title':
+          'اطلع بشكل دائمي على التطبيق لوجود تحديثات وعروض لفترات محدودة يمكنك الاستفادة منها'
+    },
     {'title': 'تفعيل الاشعارات عند تثبيت التطبيقات ليصلك كل ماهو جديد'},
-    {'title': 'في حال وجود عروض خاصة وقتية من قبل المتجر ولم تذكر في التطبيق بامكانك اختيار خصم التطبيق او عروض الوقتية للمتجر'},
-    {'title': 'عند زيارة المطاعم يجب ابراز البطاقة قبل طلب الحساب وذلك لان نظام المحاسب لا يمكن التعديل على فاتورة الحساب بعد حفظها وطباعتها'},
-    {'title': 'في حالة عدم حصولك على الخصم المقدم من المتجر يرجى الاتصال او مراسلة خدمة الزبائن فورآ قبل مغادرة المتجر ولكي لا يسقط حقك بالخصم'},
+    {
+      'title':
+          'في حال وجود عروض خاصة وقتية من قبل المتجر ولم تذكر في التطبيق بامكانك اختيار خصم التطبيق او عروض الوقتية للمتجر'
+    },
+    {
+      'title':
+          'عند زيارة المطاعم يجب ابراز البطاقة قبل طلب الحساب وذلك لان نظام المحاسب لا يمكن التعديل على فاتورة الحساب بعد حفظها وطباعتها'
+    },
+    {
+      'title':
+          'في حالة عدم حصولك على الخصم المقدم من المتجر يرجى الاتصال او مراسلة خدمة الزبائن فورآ قبل مغادرة المتجر ولكي لا يسقط حقك بالخصم'
+    },
     {'title': 'لا يجوز التفاوض على السعر قبل ابراز بطاقة cbc للخصومات'},
-    {'title': 'البطاقة لها فترات صلاحية نافذه مختلفة : 1 سنة و 2 سنة و 4 سنوات'},
+    {'title': 'البطاقة لها فترات صلاحية نافذه مختلفة : 1 سنة و 2 سنة   '},
   ].obs;
-  void fetchCallCenter() async{
+  void fetchCallCenter() async {
     isLoadingCallCenter(true);
     try {
       var list = await RemoteServices.fetchCallCenter();
-      if(list != null){
+      if (list != null) {
         callCenterList.value = list;
-      }else{
+      } else {
         isLoadingCallCenter(false);
       }
-    }finally{
+    } finally {
       isLoadingCallCenter(false);
     }
     isLoadingCallCenter(false);
     update();
   }
 
-  void fetchQr() async{
+  void fetchQr() async {
     isLoadingQr(true);
     try {
       var list = await RemoteServices.fetchQr();
-      if(list != null){
+      if (list != null) {
         qrList.value = list;
-      }else{
+      } else {
         isLoadingQr(false);
       }
-    }finally{
+    } finally {
       isLoadingQr(false);
     }
     isLoadingQr(false);
     update();
   }
-  void callPhone(phone){
+
+  void callPhone(phone) {
     launchUrlString("tel://${phone}");
   }
+
   launchWhatsAppUri(phone) async {
     String infoText = '';
     String whatsappUrl =
@@ -66,6 +81,7 @@ class HelpController extends GetxController  with SingleGetTickerProviderMixin{
       //handle error properly
     }
   }
+
   @override
   void onInit() {
     tabController = TabController(length: 3, vsync: this);

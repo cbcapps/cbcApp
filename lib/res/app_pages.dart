@@ -28,24 +28,115 @@ import 'package:ui_ecommerce/AQS/views/ProductPage.dart';
 import 'package:ui_ecommerce/AQS/views/Products.dart';
 import 'package:ui_ecommerce/CBC/views/RecentlyStories.dart';
 import 'package:ui_ecommerce/Togather/views/landing.dart';
+
+import '../CBC/bindings/LandingCbc_bindings.dart';
+import '../CBC/views/AccountView.dart';
+import '../CBC/views/CalculatorScren.dart';
+import '../CBC/views/Card.dart';
+import '../CBC/views/FavoriteShopingItemScrn.dart';
+import '../CBC/views/Help.dart';
+import '../CBC/views/HieghestStoresDinar.dart';
+import '../CBC/views/MapStoresScren.dart';
+import '../CBC/views/OffersScren.dart';
+import '../CBC/views/SearchShopingScrn.dart';
+import 'pages_name.dart';
+
 final List<GetPage> appPages = [
-  GetPage(name: '/togather', page: ()=>  Landing_togather() ),
-  GetPage(name: '/home_cbc', page: ()=>  Home_cbc()),
-  GetPage(name: '/', page: ()=>  Login() ,binding: Landing_bindings(),middlewares: [auth_middleware()]),
-  GetPage(name: '/product', page: ()=>  ProductPage() ,binding: Product_bindings()),
-  GetPage(name: '/landing', page: ()=>  Landing() ,binding: Landing_bindings()),
-  GetPage(name: '/homeAQS', page: ()=>  Home_AQS() , binding: Home_Bindings()),
-  GetPage(name: '/bestProducts', page: ()=>RecentlyProducts() , binding: RecentlyProducts_bindings()),
-  GetPage(name: '/cart', page: ()=>CartPage() , binding: Cart_bindings()),
-  GetPage(name: '/categories', page: ()=>Categories() , binding: Category_bindings()),
-  GetPage(name: '/products', page: ()=>Products() , binding: Products_bindings()),
-  GetPage(name: '/checkout', page: ()=>Checkout() , binding: Checkout_bindings()),
-  GetPage(name: '/billing', page: ()=>Billing() , binding: Billing_bindings()),
-  GetPage(name: '/Item_Billing', page: ()=>Item_Billing() , binding: ItemBilling_bindings()),
-  GetPage(name: '/cities', page: ()=>Cities_view()),
+  GetPage(
+    name: PagesName.homeCBC,
+    page: () => Home_cbc(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.hieghestDiscountDinarScrn,
+    page: () => HieghestStoresdDinar(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.mapStoreScren,
+    page: () => MapStoresScren(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.searchShopingScrn,
+    page: () => SearchShopingScrn(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.helpScrn,
+    page: () => Help(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.shopingFavoriteScrn,
+    page: () => FavoriteShopingItemScreen(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.calculatorScrn,
+    page: () => Calculatorscreen(),
+    binding: LandingCbc_bindings(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.cardScrn,
+    page: () => CardView(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.accountScrn,
+    page: () => Account(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(
+    name: PagesName.categroiesScrn,
+    page: () => AllCategories(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
+  GetPage(name: PagesName.offerScrn, page: () => OffersScreen()),
+  GetPage(name: '/togather', page: () => Landing_togather()),
+  // GetPage(name: '/home_cbc', page: () => Home_cbc()),
+  GetPage(
+      name: '/',
+      page: () => Login(),
+      binding: Landing_bindings(),
+      middlewares: [auth_middleware()]),
+  GetPage(
+      name: '/product', page: () => ProductPage(), binding: Product_bindings()),
+  GetPage(name: '/landing', page: () => Landing(), binding: Landing_bindings()),
+  GetPage(name: '/homeAQS', page: () => Home_AQS(), binding: Home_Bindings()),
+  GetPage(
+      name: '/bestProducts',
+      page: () => RecentlyProducts(),
+      binding: RecentlyProducts_bindings()),
+  GetPage(name: '/cart', page: () => CartPage(), binding: Cart_bindings()),
+  GetPage(
+      name: '/categories',
+      page: () => Categories(),
+      binding: Category_bindings()),
+  GetPage(
+      name: '/products', page: () => Products(), binding: Products_bindings()),
+  GetPage(
+      name: '/checkout', page: () => Checkout(), binding: Checkout_bindings()),
+  GetPage(name: '/billing', page: () => Billing(), binding: Billing_bindings()),
+  GetPage(
+      name: '/Item_Billing',
+      page: () => Item_Billing(),
+      binding: ItemBilling_bindings()),
+  GetPage(name: '/cities', page: () => Cities_view()),
   //cbc
-  GetPage(name: '/categories_cbc', page: ()=>CategoriesView()),
-  GetPage(name: '/recentlyStories', page: ()=>RecentlyStories()),
-  GetPage(name: '/HighestStories', page: ()=>HighestStories()),
-  GetPage(name: '/AllCategories', page: ()=>AllCategories()),
+  GetPage(name: '/categories_cbc', page: () => CategoriesView()),
+  GetPage(name: '/recentlyStories', page: () => RecentlyStories()),
+  GetPage(name: '/HighestStories', page: () => HighestStories()),
+  GetPage(name: '/AllCategories', page: () => AllCategories()),
 ];

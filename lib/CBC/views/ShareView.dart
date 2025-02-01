@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../res/colors.dart';
 import '../controllers/Help.dart';
+import '../widgets/loading_widget/progress_circular_cus.dart';
 
 class ShareView extends StatelessWidget {
   ShareView({super.key});
@@ -11,10 +12,17 @@ class ShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 24 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
     return Container(
       color: Colors.white,
       child: RefreshIndicator(
-        onRefresh: () async{
+        onRefresh: () async {
           controller.fetchQr();
         },
         child: ListView(
@@ -24,7 +32,8 @@ class ShareView extends StatelessWidget {
               child: SizedBox(
                 height: Get.width * 0.3,
                 width: Get.width * 0.8,
-                child: Image.asset('assets/images/callcenter.png', fit: BoxFit.fill),
+                child: Image.asset('assets/images/callcenter.png',
+                    fit: BoxFit.fill),
               ),
             ),
             Container(
@@ -50,7 +59,8 @@ class ShareView extends StatelessWidget {
             ),
             Center(
               child: Padding(
-                padding: EdgeInsetsDirectional.only(start: Get.width * 0.1, end: Get.width * 0.1),
+                padding: EdgeInsetsDirectional.only(
+                    start: Get.width * 0.1, end: Get.width * 0.1),
                 child: Text(
                   '141'.tr,
                   style: TextStyle(
@@ -65,7 +75,8 @@ class ShareView extends StatelessWidget {
               height: Get.width * 0.1,
             ),
             Padding(
-              padding: EdgeInsetsDirectional.only(start: Get.width * 0.05, end: Get.width * 0.05),
+              padding: EdgeInsetsDirectional.only(
+                  start: Get.width * 0.05, end: Get.width * 0.05),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -97,8 +108,10 @@ class ShareView extends StatelessWidget {
                             ),
                           ),
                         ),
-                        placeholder: (context, url) => const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        placeholder: (context, url) =>
+                            const ProgressCircularWidgetCustom(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                     )
                   else

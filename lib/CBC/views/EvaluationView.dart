@@ -9,23 +9,27 @@ import 'package:ui_ecommerce/CBC/controllers/AccountController.dart';
 import 'package:ui_ecommerce/res/colors.dart';
 
 import '../models/TestItem.dart';
+
 class EvaluationView extends StatelessWidget {
   EvaluationView({super.key});
   final AccountController controller = Get.put(AccountController());
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 11 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(
-            color: Colors.white
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: AppColors.cbcColor,
         title: Text(
           'تقييم متجر',
-          style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold
-          ),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: Container(
@@ -40,26 +44,32 @@ class EvaluationView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(height: Get.width * 0.10,),
         SizedBox(
-          child:  Image.asset('assets/images/icons/evaluation.png',
+          height: Get.width * 0.10,
+        ),
+        SizedBox(
+          child: Image.asset(
+            'assets/images/icons/evaluation.png',
             width: Get.width * 0.5,
             height: Get.width * 0.3,
           ),
         ),
         SizedBox(
-            child:  Text('قيم تجربتك للمتجر',
-              style: TextStyle(
-                  color: AppColors.cbcColor,
-                  fontSize: Get.width * 0.04,
-                  fontWeight: FontWeight.bold
-              ),
-            )
+            child: Text(
+          'قيم تجربتك للمتجر',
+          style: TextStyle(
+              color: AppColors.cbcColor,
+              fontSize: Get.width * 0.04,
+              fontWeight: FontWeight.bold),
+        )),
+        SizedBox(
+          height: Get.width * 0.05,
         ),
-        SizedBox(height: Get.width * 0.05,),
         searchTextInput(),
         //addressStore(),
-        SizedBox(height: Get.width * 0.05,),
+        SizedBox(
+          height: Get.width * 0.05,
+        ),
 
         // Add Star Rating here
         Text(
@@ -70,9 +80,11 @@ class EvaluationView extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: Get.width * 0.02,),
+        SizedBox(
+          height: Get.width * 0.02,
+        ),
         RatingBar.builder(
-          initialRating: 3,  // Default rating
+          initialRating: 3, // Default rating
           minRating: 1,
           direction: Axis.horizontal,
           allowHalfRating: true,
@@ -88,11 +100,13 @@ class EvaluationView extends StatelessWidget {
             print("User's rating: $rating"); // Handle rating update
           },
         ),
-        SizedBox(height: Get.width * 0.05,),
+        SizedBox(
+          height: Get.width * 0.05,
+        ),
 
         Padding(
-          padding: EdgeInsets.only(left: Get.width * 0.05, right: Get.width * 0.05),
-
+          padding:
+              EdgeInsets.only(left: Get.width * 0.05, right: Get.width * 0.05),
           child: GestureDetector(
             onTap: () {
               controller.uploadRate();
@@ -105,12 +119,12 @@ class EvaluationView extends StatelessWidget {
                 color: AppColors.cbcColor,
               ),
               child: Center(
-                child: Text('رفع التقييم',
+                child: Text(
+                  'رفع التقييم',
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: Get.width * 0.03
-                  ),
+                      fontSize: Get.width * 0.03),
                 ),
               ),
             ),
@@ -119,6 +133,7 @@ class EvaluationView extends StatelessWidget {
       ],
     );
   }
+
   Padding addressStore() {
     return Padding(
       padding: EdgeInsetsDirectional.only(
@@ -139,21 +154,27 @@ class EvaluationView extends StatelessWidget {
               fontSize: Get.height * 0.015,
             ),
             enabledBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10) , bottomLeft: Radius.circular(10)),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  bottomLeft: Radius.circular(10)),
               borderSide: BorderSide(
                 color: AppColors.cbcColor,
               ),
             ),
             focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10) , bottomLeft: Radius.circular(10)),
-              borderSide: BorderSide(color: AppColors.cbcColor,),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  bottomLeft: Radius.circular(10)),
+              borderSide: BorderSide(
+                color: AppColors.cbcColor,
+              ),
             ),
-
           ),
         ),
       ),
     );
   }
+
   Padding searchTextInput() {
     return Padding(
       padding: EdgeInsetsDirectional.only(
@@ -164,43 +185,47 @@ class EvaluationView extends StatelessWidget {
       child: SizedBox(
         width: Get.width * 0.8,
         height: Get.height * 0.05,
-        child: GetBuilder<AccountController>(builder: (c) {
-          return TextFieldSearch(
-            label: 'My Label',
-            controller: controller.myController,
-            future: () {
-              return controller.fetchData();
-            },
-            getSelectedValue: (value) {
-              if(value != null){
-                print(controller.myController.text);
-              }
-            },
-            decoration: InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              hintText: 'اسم المتجر',
-              hintStyle: TextStyle(
-                fontSize: Get.height * 0.015,
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(10) , bottomLeft: Radius.circular(10)),
-                borderSide: BorderSide(
-                  color: AppColors.cbcColor,
+        child: GetBuilder<AccountController>(
+          builder: (c) {
+            return TextFieldSearch(
+              label: 'My Label',
+              controller: controller.myController,
+              future: () {
+                return controller.fetchData();
+              },
+              getSelectedValue: (value) {
+                if (value != null) {
+                  print(controller.myController.text);
+                }
+              },
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                filled: true,
+                hintText: 'اسم المتجر',
+                hintStyle: TextStyle(
+                  fontSize: Get.height * 0.015,
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      bottomLeft: Radius.circular(10)),
+                  borderSide: BorderSide(
+                    color: AppColors.cbcColor,
+                  ),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      bottomLeft: Radius.circular(10)),
+                  borderSide: BorderSide(
+                    color: AppColors.cbcColor,
+                  ),
                 ),
               ),
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(10) , bottomLeft: Radius.circular(10)),
-                borderSide: BorderSide(color: AppColors.cbcColor,),
-              ),
-
-            ),
-          );
-
-
-        },),
+            );
+          },
+        ),
       ),
     );
   }
-
 }

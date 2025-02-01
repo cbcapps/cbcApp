@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../../res/colors.dart';
 import '../controllers/CardController.dart';
+import '../widgets/loading_widget/progress_circular_cus.dart';
 
 class cardAbout extends StatelessWidget {
   cardAbout({super.key});
@@ -12,6 +13,13 @@ class cardAbout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 6 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
     return Container(
       color: Colors.white,
       child: Padding(
@@ -21,9 +29,8 @@ class cardAbout extends StatelessWidget {
           top: Get.width * 0.05,
         ),
         child: RefreshIndicator(
-          onRefresh: () async{
+          onRefresh: () async {
             controller.fetchCardAbout();
-
           },
           child: ListView(
             shrinkWrap: true,
@@ -82,7 +89,6 @@ class cardAbout extends StatelessWidget {
                 }
               }),
 
-
               SizedBox(
                 height: Get.width * 0.1,
               ),
@@ -117,7 +123,6 @@ class cardAbout extends StatelessWidget {
                 }
               }),
 
-
               Text(
                 '111'.tr,
                 style: TextStyle(
@@ -147,24 +152,21 @@ class cardAbout extends StatelessWidget {
                   );
                 }
               }),
-
-
             ],
           ),
         ),
       ),
     );
-
-
   }
 
-  doing(){
-    return  SizedBox(
+  doing() {
+    return SizedBox(
       height: Get.width * 0.35,
       child: ListView.builder(
         shrinkWrap: true,
         physics: PageScrollPhysics(),
-        padding: EdgeInsetsDirectional.only(start: Get.width * 0.02, end: Get.width * 0.02),
+        padding: EdgeInsetsDirectional.only(
+            start: Get.width * 0.02, end: Get.width * 0.02),
         itemCount: controller.cardAbout!.doing.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
@@ -193,13 +195,15 @@ class cardAbout extends StatelessWidget {
       ),
     );
   }
-  futures(){
+
+  futures() {
     return SizedBox(
       height: Get.width * 0.43,
       child: ListView.builder(
         shrinkWrap: true,
         physics: PageScrollPhysics(),
-        padding: EdgeInsetsDirectional.only(start: Get.width * 0.02, end: Get.width * 0.02),
+        padding: EdgeInsetsDirectional.only(
+            start: Get.width * 0.02, end: Get.width * 0.02),
         itemCount: controller.cardAbout!.features.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
@@ -214,13 +218,15 @@ class cardAbout extends StatelessWidget {
                 SizedBox(
                   width: Get.height * 0.01,
                 ),
-               Expanded(child:  Text(
-                 controller.cardAbout!.features[index].title ?? 'No title',
-                 style: TextStyle(
-                   fontSize: Get.height * 0.0115,
-                   fontWeight: FontWeight.bold,
-                 ),
-               ),)
+                Expanded(
+                  child: Text(
+                    controller.cardAbout!.features[index].title ?? 'No title',
+                    style: TextStyle(
+                      fontSize: Get.height * 0.0115,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
               ],
             ),
           );
@@ -229,7 +235,7 @@ class cardAbout extends StatelessWidget {
     );
   }
 
-  images(){
+  images() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -252,7 +258,8 @@ class cardAbout extends StatelessWidget {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const ProgressCircularWidgetCustom(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -287,7 +294,8 @@ class cardAbout extends StatelessWidget {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const ProgressCircularWidgetCustom(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),

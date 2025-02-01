@@ -5,11 +5,19 @@ import 'package:get/get.dart';
 import '../../main.dart';
 import '../../res/colors.dart';
 import '../controllers/CardController.dart';
+
 class CardType extends StatelessWidget {
   CardType({Key? key}) : super(key: key);
   final CardController controller = Get.put(CardController());
   @override
   Widget build(BuildContext context) {
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 8 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
     return Container(
       color: Colors.white,
       child: Padding(
@@ -19,7 +27,7 @@ class CardType extends StatelessWidget {
           top: Get.width * 0.05,
         ),
         child: RefreshIndicator(
-          onRefresh: () async{
+          onRefresh: () async {
             controller.fetchCardType();
           },
           child: ListView(
@@ -91,14 +99,14 @@ class CardType extends StatelessWidget {
                 ),
               ),
               //offers
-
             ],
           ),
         ),
       ),
     );
   }
-  types(){
+
+  types() {
     return SizedBox(
       height: Get.width * 0.4,
       child: ListView.builder(

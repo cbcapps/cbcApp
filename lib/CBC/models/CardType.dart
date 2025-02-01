@@ -11,18 +11,18 @@ class CardType {
   });
 
   factory CardType.fromJson(Map<String, dynamic> json) => CardType(
-    type: List<Type>.from(json["type"].map((x) => Type.fromJson(x))),
-  );
+        type: List<Type>.from(json["type"].map((x) => Type.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "type": List<dynamic>.from(type.map((x) => x.toJson())),
-  };
+        "type": List<dynamic>.from(type.map((x) => x.toJson())),
+      };
 }
 
 class Type {
   int id;
   String type;
-  int price;
+  String price;
 
   Type({
     required this.id,
@@ -31,14 +31,14 @@ class Type {
   });
 
   factory Type.fromJson(Map<String, dynamic> json) => Type(
-    id: json["id"],
-    type: json["type"],
-    price: json["price"],
-  );
+        id: json["id"],
+        type: json["type"],
+        price: json["price"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "type": type,
-    "price": price,
-  };
+        "id": id,
+        "type": type,
+        "price": price,
+      };
 }

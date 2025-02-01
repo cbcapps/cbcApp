@@ -1,0 +1,1 @@
+dev.klisiewicz.flutter_notification_manager

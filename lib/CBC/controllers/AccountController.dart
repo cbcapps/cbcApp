@@ -4,10 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ui_ecommerce/CBC/models/Account.dart';
 import 'package:ui_ecommerce/main.dart';
 
+import '../../res/key_sherd_prefs.dart';
 import '../Services/RemoteServices.dart';
 import '../models/TestItem.dart';
 
-class AccountController extends GetxController with SingleGetTickerProviderMixin{
+class AccountController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   TabController? tabController;
   late TextEditingController phone = TextEditingController();
   late TextEditingController number = TextEditingController();
@@ -15,10 +17,10 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
   late TextEditingController address = TextEditingController();
   late TextEditingController priceDiscount = TextEditingController();
 
-  var isActive = false.obs;  // For active/inactive account state
-  var userName = ''.obs;  // User's name
-  var walletNumber = ''.obs;  // Wallet number
-  var dateCard = ''.obs;  // Date card or expiry date
+  var isActive = false.obs; // For active/inactive account state
+  var userName = ''.obs; // User's name
+  var walletNumber = ''.obs; // Wallet number
+  var dateCard = ''.obs; // Date card or expiry date
   var phoneCard = ''.obs;
   var discountCard = ''.obs;
   var rateStore = ''.obs;
@@ -26,7 +28,7 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
   var isError = false.obs;
   var isFound = false.obs;
   var accountList = <AccountModel>[].obs;
-  var isLoadingAccount= true.obs;
+  var isLoadingAccount = true.obs;
   var selectedImagePath = ''.obs;
 
   // Function to pick image from gallery
@@ -42,10 +44,7 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
     }
   }
 
-
   Future<void> uploadRate() async {
-
-
     if (myController.text.isEmpty || rateStore.value.isEmpty) {
       Get.snackbar('خطا', 'الرجاء اختيار تقييم او متجر');
       return;
@@ -57,16 +56,12 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
     }
     // Call RemoteServices uploadImage method
     String result = await RemoteServices.rateStore(
-        myController.text.trim(),
-        userName.value,
-        rateStore.value
-    );
+        myController.text.trim(), userName.value, rateStore.value);
     Get.snackbar('نجح', 'تم ارسال التقييم بنجاح');
   }
 
   // Function to upload image with storeId and amount
   Future<void> uploadImage() async {
-
     if (selectedImagePath.isEmpty) {
       Get.snackbar('Error', 'Please select an image first');
       return;
@@ -82,64 +77,66 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
     }
 
     // Call RemoteServices uploadImage method
-    String result = await RemoteServices.uploadImage(
-      selectedImagePath.value,
-      userName.value,
-      priceDiscount.text.trim(),
-      myController.text.trim()
-    );
+    String result = await RemoteServices.uploadImage(selectedImagePath.value,
+        userName.value, priceDiscount.text.trim(), myController.text.trim());
 
     if (result == 'Upload successful!') {
       Get.snackbar('نجح', 'تم رفع الفاتورة بنجاح');
     } else {
-
       Get.snackbar('Error', result);
     }
   }
-  void is_error(){
+
+  void is_error() {
     isError(true);
     update();
   }
-  void is_added(){
+
+  void is_added() {
     isFound(true);
     isError(false);
     update();
   }
-  void fetchAccount() async{
+
+  void fetchAccount() async {
     isLoadingAccount(true);
     try {
       var list = await RemoteServices.fetchAccount(number.text.trim());
-      if(list != null){
+      if (list != null) {
         is_added();
         accountList.value = list;
         print(accountList[0].number);
         sharedPreferences!.setString('nameAccount', accountList[0].nameEn);
-        sharedPreferences!.setInt('numberAccount', accountList[0].number);
+        sharedPreferences!
+            .setInt(KeySherdPrefs.numbrCardCBC, accountList[0].number);
         sharedPreferences!.setString('dateAccount', accountList[0].date);
-        sharedPreferences!.setString('discountAccount', accountList[0].discount.toString());
+        sharedPreferences!
+            .setString('discountAccount', accountList[0].discount.toString());
         sharedPreferences!.setBool('accountActive', true);
         dateCard.value = accountList[0].date.toString();
         walletNumber.value = accountList[0].number.toString();
         userName.value = accountList[0].nameEn;
-        discountCard.value =  accountList[0].discount.toString();
+        discountCard.value = accountList[0].discount.toString();
         isActive(true);
-      }else{
+      } else {
         is_error();
         print('not found');
         isLoadingAccount(false);
       }
-    }finally{
+    } finally {
       isLoadingAccount(false);
     }
     isLoadingAccount(false);
     update();
   }
-  void fetchRefresh() async{
+
+  void fetchRefresh() async {
     isLoadingAccount(true);
     sharedPreferences!.clear();
     fetchAccount();
     update();
   }
+
   Future<List<TestItem>> fetchData() async {
     await Future.delayed(Duration(milliseconds: 2000));
     List<TestItem> _list = [];
@@ -150,19 +147,32 @@ class AccountController extends GetxController with SingleGetTickerProviderMixin
     }
     return _list;
   }
+
   @override
   void onInit() {
     tabController = TabController(length: 2, vsync: this);
-    if(sharedPreferences!.getBool('accountActive') == true){
+
+    if (Get.arguments != null) {
+      tabController?.animateTo(1);
+    }
+
+    if (sharedPreferences!.getBool('accountActive') == true) {
       userName.value = sharedPreferences!.getString('nameAccount').toString();
       isActive(true);
-      number.text = sharedPreferences!.getInt('numberAccount').toString();
+      number.text =
+          sharedPreferences!.getInt(KeySherdPrefs.numbrCardCBC).toString();
       dateCard.value = sharedPreferences!.getString('dateAccount').toString();
-      walletNumber.value = sharedPreferences!.getInt('numberAccount').toString();
+      walletNumber.value =
+          sharedPreferences!.getInt(KeySherdPrefs.numbrCardCBC).toString();
       userName.value = sharedPreferences!.getString('nameAccount').toString();
-      discountCard.value =  sharedPreferences!.getString('discountAccount').toString();
+      discountCard.value =
+          sharedPreferences!.getString('discountAccount').toString();
       update();
-    }else{
+
+      print('\n');
+      print('The Number Card CBC is ${number.text}');
+      print('\n');
+    } else {
       isActive(false);
       update();
     }

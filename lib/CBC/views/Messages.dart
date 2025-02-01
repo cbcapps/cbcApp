@@ -9,6 +9,13 @@ class MessagesView extends StatelessWidget {
   final MessageController controller = Get.put(MessageController());
   @override
   Widget build(BuildContext context) {
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 20 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,22 +33,17 @@ class MessagesView extends StatelessWidget {
         ),
       ),
       body: Container(
-        margin: EdgeInsets.only(bottom: Get.height * 0.02 , top: Get.height * 0.02),
+        margin:
+            EdgeInsets.only(bottom: Get.height * 0.02, top: Get.height * 0.02),
         color: Colors.white,
         child: Obx(() {
           if (!controller.isLoadingItem.value) {
-            if (controller.messagesList != null) {
-              return RefreshIndicator(
-             child: messages(),
-              onRefresh: ()async{
-               print('refresh');
-               controller.fetchMessages();
-              });
-            } else {
-              return Center(
-                child: Text('${'20'.tr}'),
-              );
-            }
+            return RefreshIndicator(
+                child: messages(),
+                onRefresh: () async {
+                  print('refresh');
+                  controller.fetchMessages();
+                });
           } else {
             return Center(
               child: SpinKitWave(
@@ -66,7 +68,10 @@ class MessagesView extends StatelessWidget {
       itemCount: controller.messagesList.length,
       itemBuilder: (BuildContext context, int index) {
         return Padding(
-          padding: EdgeInsets.only(top: Get.width * 0.01 , left: Get.width * 0.02 , right: Get.width * 0.02),
+          padding: EdgeInsets.only(
+              top: Get.width * 0.01,
+              left: Get.width * 0.02,
+              right: Get.width * 0.016),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -89,47 +94,49 @@ class MessagesView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                   Center(
-                     child:  Icon(Icons.notifications_outlined , color: Color(0xfff204391),),
-                   ),
+                    Center(
+                      child: Icon(
+                        Icons.notifications_outlined,
+                        color: Color(0xfff204391),
+                      ),
+                    ),
                     Container(
                       color: AppColors.cbcColor,
                       height: Get.width,
                       width: Get.width * 0.002,
                     ),
-                   Padding(padding: EdgeInsets.all(Get.width * 0.03),
-                     child:  Column(
-                       mainAxisAlignment: MainAxisAlignment.start,
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Text(
-                           controller.messagesList[index].title ?? 'No title',
-                           softWrap: true,
-                           style: TextStyle(
-                             fontSize: Get.height * 0.0125,
-                             fontWeight: FontWeight.bold,
-                             color: Colors.black,
-                           ),
-                         ),
-                     SizedBox(
-                       width: Get.width * 0.8,
-                       child: Text(
-                         controller.messagesList[index].body ?? 'No title',
-                         softWrap: true,
-                         maxLines: 2,
-                         overflow: TextOverflow.ellipsis,
-                         style: TextStyle(
-                           fontSize: Get.height * 0.0125,
-                           fontWeight: FontWeight.bold,
-                           color: Colors.grey,
-                         ),
-                       ),
-                     ),
-                       ],
-                     ),
-
-
-                   )
+                    Padding(
+                      padding: EdgeInsets.all(Get.width * 0.03),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            controller.messagesList[index].title ?? 'No title',
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: Get.height * 0.0125,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(
+                            width: Get.width * 0.8,
+                            child: Text(
+                              controller.messagesList[index].body ?? 'No title',
+                              softWrap: true,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: Get.height * 0.0125,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),

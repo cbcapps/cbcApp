@@ -30,6 +30,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>We need your current location to show you the stores available in your area and provide better user experience and location-based features.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your current location to show you the stores available in your area.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your gallery to upload an image</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

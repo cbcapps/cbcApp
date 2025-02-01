@@ -1,11 +1,15 @@
+// Keys
+// FlutterAppBadger.updateBadgeCount(1);
+//  bool res = await FlutterAppBadger.isAppBadgeSupported();
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
+// import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ui_ecommerce/AQS/Bindings/Landing_bindings.dart';
 import 'package:ui_ecommerce/res/app_pages.dart';
 import 'package:ui_ecommerce/locale/Locale_controller.dart';
 import 'package:ui_ecommerce/locale/locale.dart';
@@ -13,7 +17,9 @@ import 'package:ui_ecommerce/AQS/models/CartModel.dart';
 import 'package:ui_ecommerce/AQS/models/FavoriteModel.dart';
 import 'package:intl/intl.dart';
 import 'AQS/controllers/Cart_controller.dart';
+import 'CBC/bindings/LandingCbc_bindings.dart';
 import 'firebase_options.dart';
+
 late SharedPreferences sharedPreferences;
 var formatter = NumberFormat("#,###");
 List<RemoteMessage> backgroundMessages = [];
@@ -24,21 +30,23 @@ Future<void> setCount(int count) async {
 
 int notificationCount = 0;
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(
-    RemoteMessage message) async {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final sharedPreferences = await SharedPreferences.getInstance();
   await Firebase.initializeApp();
+
   print("Handling a background message: ${message.messageId}");
-  if(message.messageId != null){
-    int unreadCount = sharedPreferences.getInt('unread_notifications_count') ?? 0;
+  if (message.messageId != null) {
+    int unreadCount =
+        sharedPreferences.getInt('unread_notifications_count') ?? 0;
     unreadCount++;
     sharedPreferences.setInt('unread_notifications_count', unreadCount);
-    FlutterAppBadger.updateBadgeCount(1);
+    // FlutterAppBadger.updateBadgeCount(1);
   }
 }
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FlutterAppBadger.updateBadgeCount(1);
+  // FlutterAppBadger.updateBadgeCount(1);
   sharedPreferences = await SharedPreferences.getInstance();
   await Hive.initFlutter();
   Hive.registerAdapter(CartModelAdapter());
@@ -48,6 +56,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   if (Firebase.apps.isNotEmpty) {
     print('Firebase initialized successfully!');
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -61,6 +70,10 @@ void main() async {
       provisional: false,
       sound: true,
     );
+    if (Platform.isIOS) {
+      String? apnsToken = await messaging.getAPNSToken();
+      print("APNs Token: $apnsToken");
+    }
     print('User granted permission: ${settings.authorizationStatus}');
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Got a message whilst in the foreground!');
@@ -70,7 +83,7 @@ void main() async {
         print('Message also contained a notification: ${message.notification}');
         // Increment notification count when a new message is received
         int unreadCount =
-            sharedPreferences!.getInt('unread_notifications_count') ?? 0;
+            sharedPreferences.getInt('unread_notifications_count') ?? 0;
         unreadCount++;
         setCount(unreadCount);
       }
@@ -81,8 +94,8 @@ void main() async {
   }
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   print('count is : ${sharedPreferences.getInt('unread_notifications_count')}');
-  bool res = await FlutterAppBadger.isAppBadgeSupported();
-  print('suppp : ${res}');
+  // bool res = await FlutterAppBadger.isAppBadgeSupported();
+  // print('suppp : ${res}');
   runApp(const MyApp());
 }
 
@@ -104,7 +117,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialBinding: Landing_bindings(),
+      initialBinding: LandingCbc_bindings(),
       initialRoute: '/togather',
       getPages: appPages,
     );

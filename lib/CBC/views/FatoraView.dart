@@ -1,4 +1,4 @@
-import 'dart:io';  // For handling files
+import 'dart:io'; // For handling files
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +14,13 @@ class FatoraView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
+    print('The  Page 12 ');
+    print('\n');
+    print('----------------------------====================================');
+    print('\n');
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
@@ -78,7 +85,8 @@ class FatoraView extends StatelessWidget {
                     border: Border.all(color: Colors.grey),
                   ),
                   child: Image.file(
-                    File(controller.selectedImagePath.value),  // Display the image from controller
+                    File(controller.selectedImagePath
+                        .value), // Display the image from controller
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -86,21 +94,20 @@ class FatoraView extends StatelessWidget {
                 button(),
               ],
             );
-
           } else {
-            return Container();  // Return empty container if no image selected
+            return Container(); // Return empty container if no image selected
           }
         }),
-
       ],
     );
   }
-  Widget button(){
+
+  Widget button() {
     return Padding(
       padding: EdgeInsets.only(left: Get.width * 0.05, right: Get.width * 0.05),
       child: GestureDetector(
         onTap: () {
-         controller.uploadImage();
+          controller.uploadImage();
         },
         child: Container(
           height: Get.width * 0.1,
@@ -110,12 +117,12 @@ class FatoraView extends StatelessWidget {
             color: AppColors.cbcColor,
           ),
           child: Center(
-            child: Text('رفع التقييم',
+            child: Text(
+              'رفع التقييم',
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: Get.width * 0.03
-              ),
+                  fontSize: Get.width * 0.03),
             ),
           ),
         ),
@@ -259,8 +266,7 @@ class FatoraView extends StatelessWidget {
               return controller.fetchData();
             },
             getSelectedValue: (value) {
-              if (value != null) {
-              }
+              if (value != null) {}
             },
             decoration: InputDecoration(
               fillColor: Colors.white,
