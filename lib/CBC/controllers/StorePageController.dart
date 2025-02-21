@@ -13,6 +13,7 @@ class StorePageController extends GetxController
   // double _heightTabPage = Get.height * 0.4;
   TabController? tabController;
   int id = 0;
+  int indexTab = 0;
   dynamic argumentData = Get.arguments;
 
   // double get heightTabPage => _heightTabPage;
@@ -46,6 +47,12 @@ class StorePageController extends GetxController
 
   //   // end Method
   // }
+
+  changeIndexTap(int index) {
+    indexTab = index;
+    update();
+    // end Method
+  }
 
   void fetchStore() async {
     isLoadingItem(true);
@@ -94,6 +101,10 @@ class StorePageController extends GetxController
   void onInit() {
     tabController = TabController(length: 4, vsync: this);
     id = argumentData[0]['id'];
+    final check = argumentData[0]['branch'];
+    if (check != null) {
+      tabController?.animateTo(1);
+    }
     fetchStore();
     // TODO: implement onInit
     super.onInit();

@@ -1,4 +1,5 @@
 class PagesName {
+  static const searchView = '/searchView';
   static const homeCBC = '/home_cbc';
   static const mapStoreScren = '/mapStoreScren';
   static const hieghestDiscountDinarScrn = '/hieghestDiscountDinarScrn';

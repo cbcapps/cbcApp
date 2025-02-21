@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ui_ecommerce/CBC/controllers/AccountController.dart';
 import 'package:ui_ecommerce/res/colors.dart';
@@ -28,113 +26,118 @@ class ActiveAcount extends StatelessWidget {
     );
   }
 
-  Widget Active() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: Get.width * 0.05,
-        ),
-        Center(
-            child: Text(
-          '125'.tr,
-          style: TextStyle(
-              color: AppColors.cbcColor,
-              fontSize: Get.width * 0.033,
-              fontWeight: FontWeight.bold),
-        )),
-        SizedBox(
-          height: Get.width * 0.05,
-        ),
-        Padding(
-          padding: EdgeInsetsDirectional.only(
-              start: Get.width * 0.05, end: Get.width * 0.05),
-          child: Text(
-            '126'.tr,
-            style: TextStyle(
-                color: AppColors.cbcColor,
-                fontSize: Get.width * 0.03,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          height: Get.width * 0.05,
-        ),
-        Padding(
-          padding: EdgeInsetsDirectional.only(
-              start: Get.width * 0.05, end: Get.width * 0.05),
-          child: Text(
-            '127'.tr,
-            style: TextStyle(
-                color: Colors.blue,
-                fontSize: Get.width * 0.035,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          height: Get.width * 0.01,
-        ),
-        Padding(
-          padding: EdgeInsetsDirectional.only(
-              start: Get.width * 0.05, end: Get.width * 0.05),
-          child: TextField(
-            controller: controller.number,
-            decoration: InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              hintStyle: TextStyle(
-                fontSize: Get.height * 0.015,
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(
-                  color: AppColors.cbcColor,
-                ),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    bottomLeft: Radius.circular(10)),
-                borderSide: BorderSide(
-                  color: AppColors.cbcColor,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: Get.width * 0.05,
-        ),
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              if (controller.number.text.isNotEmpty) {
-                controller.fetchRefresh();
-              }
-            },
-            child: Container(
-              height: Get.width * 0.1,
-              width: Get.width * 0.6,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: AppColors.cbcColor,
-              ),
-              child: Center(
-                child: Text(
-                  '128'.tr,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: Get.width * 0.04),
-                ),
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
+  // Widget ActiveMethod() {
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.start,
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       SizedBox(
+  //         height: Get.width * 0.05,
+  //       ),
+  //       Center(
+  //           child: Text(
+  //         '125'.tr,
+  //         style: TextStyle(
+  //             color: AppColors.cbcColor,
+  //             fontSize: Get.width * 0.033,
+  //             fontWeight: FontWeight.bold),
+  //       )),
+  //       SizedBox(
+  //         height: Get.width * 0.05,
+  //       ),
+  //       Padding(
+  //         padding: EdgeInsetsDirectional.only(
+  //             start: Get.width * 0.05, end: Get.width * 0.05),
+  //         child: Text(
+  //           '126'.tr,
+  //           style: TextStyle(
+  //               color: AppColors.cbcColor,
+  //               fontSize: Get.width * 0.03,
+  //               fontWeight: FontWeight.bold),
+  //         ),
+  //       ),
+  //       SizedBox(
+  //         height: Get.width * 0.05,
+  //       ),
+  //       Padding(
+  //         padding: EdgeInsetsDirectional.only(
+  //             start: Get.width * 0.05, end: Get.width * 0.05),
+  //         child: Text(
+  //           // '127'.tr,
+  //           'Now',
+  //           style: TextStyle(
+  //               color: Colors.blue,
+  //               fontSize: Get.width * 0.035,
+  //               fontWeight: FontWeight.bold),
+  //         ),
+  //       ),
+  //       SizedBox(
+  //         height: Get.width * 0.01,
+  //       ),
+  //       Padding(
+  //         padding: EdgeInsetsDirectional.only(
+  //             start: Get.width * 0.05, end: Get.width * 0.05),
+  //         child: TextField(
+  //           controller: controller.number,
+  //           decoration: InputDecoration(
+  //             fillColor: Colors.white,
+  //             filled: true,
+  //             hintStyle: TextStyle(
+  //               fontSize: Get.height * 0.015,
+  //             ),
+  //             enabledBorder: const OutlineInputBorder(
+  //               borderRadius: BorderRadius.all(Radius.circular(10)),
+  //               borderSide: BorderSide(
+  //                 color: AppColors.cbcColor,
+  //               ),
+  //             ),
+  //             focusedBorder: const OutlineInputBorder(
+  //               borderRadius: BorderRadius.only(
+  //                   topLeft: Radius.circular(10),
+  //                   bottomLeft: Radius.circular(10)),
+  //               borderSide: BorderSide(
+  //                 color: AppColors.cbcColor,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(
+  //         height: Get.width * 0.05,
+  //       ),
+  //       Center(
+  //         child: GestureDetector(
+  //           onTap: () {
+  //             if (controller.number.text.isNotEmpty) {
+  //               print('\n');
+  //               print('Button Widget  Active');
+  //               print('\n');
+
+  //               controller.fetchRefresh();
+  //             }
+  //           },
+  //           child: Container(
+  //             height: Get.width * 0.1,
+  //             width: Get.width * 0.6,
+  //             decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(5),
+  //               color: AppColors.cbcColor,
+  //             ),
+  //             child: Center(
+  //               child: Text(
+  //                 '128'.tr,
+  //                 style: TextStyle(
+  //                     color: Colors.white,
+  //                     fontWeight: FontWeight.bold,
+  //                     fontSize: Get.width * 0.04),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       )
+  //     ],
+  //   );
+  // }
 
   Widget notActive() {
     return Column(
@@ -188,6 +191,11 @@ class ActiveAcount extends StatelessWidget {
               start: Get.width * 0.05, end: Get.width * 0.05),
           child: TextField(
             controller: controller.number,
+            focusNode: controller.focusCardNumbr,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
             decoration: InputDecoration(
               fillColor: Colors.white,
               filled: true,
@@ -219,6 +227,7 @@ class ActiveAcount extends StatelessWidget {
               start: Get.width * 0.05, end: Get.width * 0.05),
           child: Text(
             '3'.tr,
+            // 'Phone',
             style: TextStyle(
                 color: Colors.blue,
                 fontSize: Get.width * 0.035,
@@ -229,7 +238,13 @@ class ActiveAcount extends StatelessWidget {
           padding: EdgeInsetsDirectional.only(
               start: Get.width * 0.05, end: Get.width * 0.05),
           child: TextField(
+            maxLength: 11,
             controller: controller.phone,
+            focusNode: controller.focusPhoneNumbr,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
             decoration: InputDecoration(
               fillColor: Colors.white,
               filled: true,
@@ -265,8 +280,9 @@ class ActiveAcount extends StatelessWidget {
                     if (controller.number.text.isNotEmpty) {
                       //
                       print('\n');
-                      print('Button Active');
+                      print('Button Widget Not Active');
                       print('\n');
+
                       controller.fetchRefresh();
                     }
                   },
@@ -292,7 +308,11 @@ class ActiveAcount extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     if (controller.number.text.isNotEmpty) {
-                      controller.fetchAccount();
+                      // controller.fetchAccount();
+                      print('\n');
+                      print('Button Widget  Active');
+                      print('\n');
+                      controller.fetchRefresh();
                     }
                   },
                   child: Container(
@@ -326,8 +346,10 @@ class ActiveAcount extends StatelessWidget {
               return isError('129'.tr);
             } else if (builder.isFound.value) {
               return isAdded('130'.tr);
+            } else if (builder.isExpired.value) {
+              return isError('237'.tr);
             } else {
-              return SizedBox();
+              return SizedBox.shrink();
             }
           }),
         ),

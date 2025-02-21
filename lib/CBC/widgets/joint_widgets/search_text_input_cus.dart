@@ -21,7 +21,7 @@ class SearchTextInputCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFieldSearch(
       label: 'My Label',
-      minStringLength: 1,
+      minStringLength: 0,
       controller: controllerCus,
       future: futureFunction,
       getSelectedValue: getSelectedValueCus,

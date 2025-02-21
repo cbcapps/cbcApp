@@ -1,41 +1,59 @@
 // Keys
 // FlutterAppBadger.updateBadgeCount(1);
-import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-// import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ui_ecommerce/CBC/models/City.dart';
 import 'package:ui_ecommerce/CBC/models/Discount.dart';
 import 'package:ui_ecommerce/main.dart';
+import 'package:ui_ecommerce/res/key_sherd_prefs.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../Services/RemoteServices.dart';
+import '../models/Account.dart';
 import '../models/CategoryMapModel.dart';
 import '../models/LangStoresModel.dart';
 import '../models/RecentlyDiscount.dart';
 import '../models/Slider.dart';
 import '../models/Store.dart';
 import '../models/TestItem.dart';
+import '../widgets/home_page/dialog_exipre_card_cus.dart';
+import '../widgets/home_page/dialog_widget_check_update.dart';
+import '../widgets/joint_widgets/btn_widget_material_cus_joint.dart';
 import '../widgets/lacation/widget_dialog_details_sotre_loaction.dart';
 import '../widgets/lacation/widget_loaction_store.dart';
 
 abstract class AbstractHomeController extends GetxController {
   // Methods
+
+  bool isRemindMeActive();
+  checkAppNeedUpste();
+  Future<void> setDateTimeRemindMe();
+  changeValueRemindMe();
+  unFocusSearchField();
+  setValueZero();
   addLangMarkers();
   onRefreshFetchHighestDiscountDinnar();
   listnerScrollControllerHighestDiscontDinnarMethod();
   chosecategoryLang(String newVal, int index);
   // Listner to Controller
   listnerScrollControllerCategoryLange();
+  dialogMethodCehckAccountActive();
   // Backend Method
+
+  Future<void> fetchAccountInformation();
+  Future<void> dialogWidgetToCheckUpdateExist();
+  Future<List<TestItem>> fetchData(String query);
+  Future<void> fetchVersionNumberMethod();
   Future<void> fetchHighestDinnar();
   Future<void> fetchLangStoresMethod();
   Future<void> fetchCategoryLatLangMethod();
+  Future<void> fetchCitiesMethod();
+  Future<void> fetchSubCityMethod(String governorateName);
   // end Abstract
 }
 
@@ -52,11 +70,11 @@ class Chome_controller extends AbstractHomeController {
   late ScrollController scrollControllerRecentlyDicont;
   late ScrollController scrollControllerHeighestDicont;
   late ScrollController scrollControllerHeighestDicontDinnar;
+  late FocusNode focusNodeSearch;
 
-  RxBool _loadingPaginationRecntlyDiscont = false.obs;
-  RxBool _loadingPaginationHeightestDiscont = false.obs;
-  RxBool _loadingPaginationHeightestDiscontDinnar = false.obs;
-  RxBool _loadingPaginationCategoryLang = false.obs;
+  DateTime? _DateTimeRemindMe;
+
+  double _numbrVersonApp = 1.1;
   int _curentPageRecentlyDiscount = 1;
   int _curentPageHeighestDiscount = 1;
   int _curentPageHeighestDiscountDinnar = 1;
@@ -64,14 +82,20 @@ class Chome_controller extends AbstractHomeController {
   int selectedIndex = 1;
   int index = 0;
   int _selctedCategory = 0;
-  var showCartBadge = false.obs;
   RxInt backgroundMessagesLength = 0.obs;
+  bool _remindMeCheck = false;
+  RxBool _loadingPaginationRecntlyDiscont = false.obs;
+  RxBool _loadingPaginationHeightestDiscont = false.obs;
+  RxBool _loadingPaginationHeightestDiscontDinnar = false.obs;
+  RxBool _loadingPaginationCategoryLang = false.obs;
+  var showCartBadge = false.obs;
   RxBool _isLoadingCategory = true.obs;
   RxBool _isLoadingMap = true.obs;
   var isLoadingRecently = true.obs;
   var isLoadingSearch = true.obs;
   var isLoadingHighest = true.obs;
   RxBool isLoadingHighestDinnar = true.obs;
+  RxBool isLoadingFetchAreas = false.obs;
   var isLoadingSliders = true.obs;
   RxList<Marker> _markersStore = <Marker>[].obs;
   List<String> productNames = [];
@@ -93,10 +117,12 @@ class Chome_controller extends AbstractHomeController {
   Rx<LatLng> _initCenter = LatLng(33.3045585, 44.3421706).obs;
   double _latitude = 0.0;
   double _longitude = 0.0;
+  int? _numbrCard;
 
   // Getter
   // ------------
   int get selctedCategory => _selctedCategory;
+  double get numbrVersonApp => _numbrVersonApp;
   RxBool get loadingPaginationRecntlyDiscont =>
       _loadingPaginationRecntlyDiscont;
   RxBool get loadingPaginationCategoryLang => _loadingPaginationCategoryLang;
@@ -111,10 +137,13 @@ class Chome_controller extends AbstractHomeController {
   RxList<Marker> get markersStore => _markersStore;
   Rx<LatLng> get initCenter => _initCenter;
   RxList<CategoryMapModel> get listCategoryLang => _listCategoryLang;
+  bool get remindMeCheck => _remindMeCheck;
   //  RxBool _isLoadingMap
 
-  void fetchSubCity(String governorateName) async {
+  @override
+  Future<void> fetchSubCityMethod(String governorateName) async {
     selectedArea.value = '';
+    isLoadingFetchAreas(true);
     try {
       var areas = await RemoteServices.fetchSubCity(governorateName);
       if (areas != null) {
@@ -123,17 +152,26 @@ class Chome_controller extends AbstractHomeController {
       } else {
         selectedAreas.clear();
       }
+      isLoadingFetchAreas(false);
     } catch (e) {
       selectedAreas.clear();
+      isLoadingFetchAreas(false);
       print("Error fetching sub cities: $e");
     }
   }
 
-  Future<List<TestItem>> fetchData() async {
-    await Future.delayed(Duration(milliseconds: 2000));
+  Future<List<TestItem>> fetchData(String query) async {
+    print('\n');
+    print('Now Controller ');
+    print('\n');
+
     List<TestItem> _list = [];
     String _inputText = myController.text;
-    List<dynamic> filters = await RemoteServices.filterStories(_inputText);
+    // _inputText
+    List<dynamic> filters = await RemoteServices.filterStories(query.trim());
+    // print('\n');
+    // print('The List Of Search is $filters');
+    // print('\n');
     for (var jsonItem in filters) {
       _list.add(TestItem.fromJson(jsonItem));
     }
@@ -181,6 +219,9 @@ class Chome_controller extends AbstractHomeController {
       isLoadingRecently(true);
     }
     try {
+      print('\n');
+      print('The Method Recently Controller ');
+      print('\n');
       List<RecentlyDiscount>? recentlylistFetch =
           await RemoteServices.fetchDiscountRecently(
               _curentPageRecentlyDiscount.toString());
@@ -421,6 +462,9 @@ class Chome_controller extends AbstractHomeController {
         addLangMarkers();
       } else {}
     } finally {
+      print('\n');
+      print('Fetch Data LatLong is Done And Loading');
+      print('\n');
       _isLoadingMap(false);
     }
 
@@ -452,10 +496,6 @@ class Chome_controller extends AbstractHomeController {
   }
 
   addLangMarkers() {
-    print('\n');
-    print('=======================');
-    print('\n');
-    print('The Lenght of List Lang is ${_listLangStore.length}');
     for (final LangStoresModel item in _listLangStore) {
       _markersStore.add(
         _addMaarkerWidgetBackend(
@@ -487,7 +527,8 @@ class Chome_controller extends AbstractHomeController {
   }
 
   //fetch Categories
-  void fetchCities() async {
+  @override
+  Future<void> fetchCitiesMethod() async {
     isLoadingCities(true);
     try {
       var cities = await RemoteServices.fetchCities();
@@ -567,7 +608,7 @@ class Chome_controller extends AbstractHomeController {
       if (scrollControllerHeighestDicontDinnar.position.pixels >= threshold) {
         if (!_loadingPaginationHeightestDiscontDinnar.value) {
           _loadingPaginationHeightestDiscontDinnar.value = true;
-          await fetchHighest();
+          await fetchHighestDinnar();
           _loadingPaginationHeightestDiscontDinnar.value = false;
         }
       }
@@ -588,6 +629,7 @@ class Chome_controller extends AbstractHomeController {
     scrollControllerHeighestDicont.dispose();
     scrollControllerRecentlyDicont.dispose();
     scrollControllerCategoryLang.dispose();
+    focusNodeSearch.dispose();
     print("okkkk");
   }
 
@@ -605,18 +647,21 @@ class Chome_controller extends AbstractHomeController {
     scrollControllerHeighestDicont = ScrollController();
     scrollControllerRecentlyDicont = ScrollController();
     scrollControllerCategoryLang = ScrollController();
-
+    focusNodeSearch = FocusNode();
+    await getUserLoaction();
+    listnerScrollControllerHighestDiscontDinnarMethod();
     listnerScrollControllerRecentlyDiscontMethod();
     listnerScrollControllerHighestDiscontMethod();
-    await getUserLoaction();
     fetchCountMessages();
-    fetchCities();
     fetchSliders();
-    await fetchHighest();
     fetchHighestDinnar();
     fetchRecently();
     fetchCategoryLatLangMethod();
     fetchLangStoresMethod();
+    await fetchHighest();
+    fetchCitiesMethod();
+    fetchAccountInformation();
+    fetchVersionNumberMethod();
 
     super.onInit();
   }
@@ -637,12 +682,16 @@ class Chome_controller extends AbstractHomeController {
     _markersStore.add(markerWidget(_latitude, _longitude, Colors.green));
     _listLangStore.value = [];
     _categoryMapLang = newVal;
+
+    if (_categoryMapLang == 'الكل') {
+      _categoryMapLang = '';
+    }
     _selctedCategory = index;
     update();
     print('\n');
     print('==================');
     print(
-        'The Index is $index  and List Lang Lenght is ${_markersStore.length}');
+        'The Index is $index  and List Lang Lenght is ${_markersStore.length} And Category is $_categoryMapLang');
     fetchLangStoresMethod();
     // end Method
   }
@@ -678,4 +727,287 @@ class Chome_controller extends AbstractHomeController {
       ),
     );
   }
+
+  @override
+  setValueZero() {
+    selectedArea.value = '';
+    selectedGovernorate.value = '';
+    selectedAreas.value = [];
+    // End Method
+  }
+
+  @override
+  unFocusSearchField() {
+    focusNodeSearch.unfocus();
+    // end Method
+  }
+
+  @override
+  Future<void> dialogWidgetToCheckUpdateExist() async {
+    // Get.defaultDialog(
+    //     title: '',
+    //     titlePadding: EdgeInsets.zero,
+    //     contentPadding: EdgeInsets.zero,
+    //     content: Container(
+    //       height: Get.height * 0.7,
+    //       width: double.infinity,
+    //       decoration: BoxDecoration(color: Colors.red),
+    //     ));
+
+    Get.defaultDialog(
+      title: '',
+      titlePadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.zero,
+      barrierDismissible: false,
+      backgroundColor: Colors.white,
+      content: DialogWidgetCheckUpdateCus(
+        checkBoxValue: _remindMeCheck,
+        onChangedCheckBox: (value) {
+          changeValueRemindMe();
+        },
+        onPressedCus: () async {
+          String urlLink = Platform.isAndroid
+              ? 'https://play.google.com/store/apps/details?id=com.ALi_Jaafar95.offer_APP&pcampaignid=web_share'
+              : 'https://apps.apple.com/app/id1639896122';
+          await openurl(urlLink);
+          Get.back();
+        },
+      ),
+    );
+    // Get.dialog(
+    //   Container(
+    //     padding: EdgeInsets.only(
+    //       top: Get.height * 0.295,
+    //       bottom: Get.height * 0.295,
+    //       left: Get.width * 0.06,
+    //       right: Get.width * 0.06,
+    //     ),
+    //     child: ClipRRect(
+    //       borderRadius: BorderRadius.circular(Get.width * 0.05),
+    //       child: Scaffold(
+    //         backgroundColor: Colors.white,
+    //         body: SizedBox(
+    //           // height: Get.height * 0.3,
+    //           // width: double.infinity,
+    //           // color: Colors.red,
+    //           child: ListView(
+    //             shrinkWrap: true,
+    //             padding: EdgeInsets.zero,
+    //             physics: const BouncingScrollPhysics(),
+    //             children: [
+    //               SizedBox(height: Get.height * 0.03),
+    //               Text(
+    //                 '228'.tr,
+    //                 overflow: TextOverflow.ellipsis,
+    //                 textAlign: TextAlign.center,
+    //                 style: TextStyle(
+    //                   fontSize: Get.width * 0.045,
+    //                   fontWeight: FontWeight.bold,
+    //                 ),
+    //               ),
+    //               SizedBox(height: Get.height * 0.015),
+    //               Padding(
+    //                 padding:
+    //                     EdgeInsets.symmetric(horizontal: Get.width * 0.025),
+    //                 child: Text(
+    //                   '227'.tr,
+    //                   overflow: TextOverflow.ellipsis,
+    //                   maxLines: 10,
+    //                   textAlign: TextAlign.center,
+    //                   style: TextStyle(
+    //                     fontSize: Get.width * 0.04,
+    //                     fontWeight: FontWeight.bold,
+    //                   ),
+    //                 ),
+    //               ),
+
+    //               SizedBox(height: Get.height * 0.025),
+
+    //               Padding(
+    //                 padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+    //                 child: BtnWidgetMaterialCustomJoint(
+    //                   txtBtn: '229'.tr,
+    //                   onPressed: () {
+    //                     String urlLink = Platform.isAndroid
+    //                         ? 'https://play.google.com/store/apps/details?id=com.ALi_Jaafar95.offer_APP&pcampaignid=web_share'
+    //                         : 'https://apps.apple.com/app/id1639896122';
+    //                     openurl(urlLink);
+    //                   },
+    //                 ),
+    //               )
+    //               // end Children ListView
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
+    //  end Method
+  }
+
+  @override
+  changeValueRemindMe() {
+    _remindMeCheck = !_remindMeCheck;
+
+    setDateTimeRemindMe();
+    print('\n');
+    print('Value Check Box is $_remindMeCheck');
+    print('\n');
+    print('\n');
+    update();
+    // end Method
+  }
+
+  @override
+  Future<void> setDateTimeRemindMe() async {
+    DateTime dateNow = DateTime.now();
+    if (_remindMeCheck) {
+      _DateTimeRemindMe = DateTime(dateNow.year, dateNow.month, dateNow.day);
+
+      print('\n');
+      print('Date Time Remind Me is $_DateTimeRemindMe');
+      print('\n');
+      await sharedPreferences.setString(
+          KeySherdPrefs.dateTimeRemindMe, _DateTimeRemindMe.toString());
+    } else {
+      _DateTimeRemindMe = null;
+      await sharedPreferences.remove(KeySherdPrefs.dateTimeRemindMe);
+    }
+
+    await sharedPreferences.reload();
+
+    final check = sharedPreferences.getString(KeySherdPrefs.dateTimeRemindMe);
+
+    print('\n');
+    print('After Delete Date Time Remind Me is $check');
+    print('\n');
+    //end Method
+  }
+
+  @override
+  checkAppNeedUpste() {
+    // sharedPreferences.remove(KeySherdPrefs.dateTimeRemindMe);
+    final checkRemind = !isRemindMeActive();
+
+    if (checkRemind) {
+      dialogWidgetToCheckUpdateExist();
+    }
+
+    // end Method
+  }
+
+  @override
+  bool isRemindMeActive() {
+    DateTime dateNow = DateTime.now();
+
+    DateTime dateNowFormat = DateTime(dateNow.year, dateNow.month, dateNow.day);
+    final dateShared =
+        sharedPreferences.getString(KeySherdPrefs.dateTimeRemindMe);
+    print('\n');
+    print('================-------------------wEreRe');
+    print('_DateTimeRemindMe $_DateTimeRemindMe');
+    print('\n');
+
+    if (dateShared != null) {
+      _DateTimeRemindMe = DateTime.parse(dateShared);
+
+      //
+
+      final chaeck = _DateTimeRemindMe == dateNowFormat;
+      // final chaeck2 = _DateTimeRemindMe!.isAfter(dateNowFormat);
+      print('\n');
+      print(
+          'The Check DateTime Now and SavedTime is $chaeck   and  \n Saved Time is $_DateTimeRemindMe and \n DateTime Now is $dateNowFormat  ');
+      print('\n');
+      // DateTime Remind == DateTime Now?
+
+      if (chaeck) {
+        return true;
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+    // end Methd
+  }
+
+  @override
+  Future<void> fetchVersionNumberMethod() async {
+    try {
+      double versionNumbrServer =
+          await RemoteServices.fetchVersionNumberAppServer();
+      print('\n');
+      print('====================================');
+      print('versionNumbrServer Controller is $versionNumbrServer');
+      print('\n');
+      if (versionNumbrServer > _numbrVersonApp) {
+        checkAppNeedUpste();
+      }
+    } finally {}
+
+    // end Method
+  }
+
+  @override
+  dialogMethodCehckAccountActive() {
+    return Get.defaultDialog(
+      title: '',
+      backgroundColor: Colors.white,
+      titlePadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.zero,
+      content: DialogExipreCardCus(),
+    );
+    // end Method
+  }
+
+  @override
+  Future<void> fetchAccountInformation() async {
+    final numbrShared = sharedPreferences.getInt(KeySherdPrefs.numbrCardCBC);
+
+    if (numbrShared != null) {
+      _numbrCard = numbrShared;
+    } else {
+      return;
+    }
+
+    try {
+      List<AccountModel>? list =
+          await RemoteServices.fetchAccountServer(_numbrCard.toString());
+      if (list != null) {
+        final item = list[0];
+
+        if (item.status == 'Expired') {
+          await Future.wait([
+            sharedPreferences.setBool('accountActive', false),
+            sharedPreferences.setString('dateAccount', item.date),
+          ]);
+          dialogMethodCehckAccountActive();
+        } else {
+          await Future.wait([
+            // sharedPreferences.setString('nameAccount', accountList[0].nameEn),
+            sharedPreferences.setInt(
+                KeySherdPrefs.numbrCardCBC, item.numberCard),
+            sharedPreferences.setString('dateAccount', item.date),
+
+            sharedPreferences.setBool('accountActive', true),
+          ]);
+        }
+        // await Future.wait([
+        //   sharedPreferences.setString('nameAccount', accountList[0].nameEn),
+        //   sharedPreferences.setInt(
+        //       KeySherdPrefs.numbrCardCBC, accountList[0].numberCard),
+        //   sharedPreferences.setString('dateAccount', accountList[0].date),
+        //   // sharedPreferences.setString(
+        //   //     'discountAccount', accountList[0].discount.toString()),
+        //   sharedPreferences.setBool('accountActive', true),
+        // ]);
+      } else {
+        print('not found');
+      }
+    } finally {}
+  }
+
+  // end Class Controller
 }

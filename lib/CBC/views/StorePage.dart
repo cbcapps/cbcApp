@@ -126,6 +126,7 @@ class StorePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               color: AppColors.cbcColor,
             ),
+
             indicatorWeight: 0.0, // تعيين الوزن إلى 0.0 لإزالة الخط
             labelStyle: TextStyle(
                 fontSize: Get.width * 0.021,
@@ -138,16 +139,55 @@ class StorePage extends StatelessWidget {
                 color: Colors.black,
                 fontFamily: 'Tajawal'),
             controller: controller.tabController,
+
             // No Need For it , just waste my time ;)
             // onTap: (value) {
             //   controller.changeHeightTapPage(
             //       value, heightAppBarCustom(contextt));
             // },
+
+            onTap: (value) {
+              controller.changeIndexTap(value);
+            },
             tabs: [
               Tab(text: '98'.tr),
               Tab(text: '99'.tr),
               Tab(text: '100'.tr),
-              Tab(text: '101'.tr),
+              Tab(
+                // text: '101'.tr,
+                iconMargin: EdgeInsets.zero,
+
+                child: GetBuilder<StorePageController>(builder: (context) {
+                  return Container(
+                    // height: 10,
+                    // color: Colors.amber,
+                    // color: AppColors.cbcColor,
+                    width: Get.width,
+                    padding: EdgeInsets.symmetric(
+                      vertical: Get.height * 0.012,
+                      horizontal: Get.width * 0.005,
+                    ),
+                    decoration: BoxDecoration(
+                        // color: Color(0xffE76F51),
+                        color: controller.store!.storeinfo.offers.isNotEmpty
+                            ? Colors.red
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(Get.width * 0.005)),
+                    child: Text(
+                      '101'.tr,
+                      style: TextStyle(
+                          fontSize: Get.width * 0.021,
+                          fontWeight: FontWeight.bold,
+                          color: controller.store!.storeinfo.offers.isNotEmpty
+                              ? Colors.white
+                              : controller.tabController?.index == 3
+                                  ? Colors.white
+                                  : Colors.black,
+                          fontFamily: 'Tajawal'),
+                    ),
+                  );
+                }),
+              ),
             ],
           ),
         ],

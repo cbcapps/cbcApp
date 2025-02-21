@@ -531,7 +531,7 @@ class Stories extends StatelessWidget {
               ),
               Center(
                 child: Text(
-                  '${'95'.tr} ${count}',
+                  '${'95'.tr} %${count}',
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

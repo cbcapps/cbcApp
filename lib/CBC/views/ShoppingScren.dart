@@ -14,7 +14,7 @@ import '../widgets/joint_widgets/appbar_shoping_ofers_page_cus.dart';
 import '../widgets/joint_widgets/notification_widget_cus.dart';
 import '../widgets/loading_widget/progress_circular_cus.dart';
 import '../widgets/shoping_page/item_sliver_list_cus.dart';
-import '../widgets/shoping_page/pop_menu_widget_cus.dart';
+import 'Messages.dart';
 
 class ShoppingScreen extends StatelessWidget {
   ShoppingScreen({super.key});
@@ -27,17 +27,34 @@ class ShoppingScreen extends StatelessWidget {
     return
         // Stack(
         //   children: [
-        Scaffold(
-            appBar: appBarShopingOfersPageCustom(
-                AppImages.shopingIcon,
-                '196'.tr,
-                40,
-                40,
-                PopMenuWidgetCustom(),
-                builIconNotifcation(),
-                null,
-                true),
-            body: content(context));
+        PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        print('\n');
+        print('Offer Screen The Edits is $didPop and Object is $result');
+        print('\n');
+
+        homeContrler.onItemTapped(1);
+
+        // c.onItemTapped(0);
+      },
+      child: Scaffold(
+          appBar: appBarShopingOfersPageCustom(
+            AppImages.shopingIcon,
+            '196'.tr,
+            40,
+            40,
+            // PopMenuWidgetCustom(),
+            SizedBox.shrink(),
+            builIconNotifcation(),
+            null,
+            true,
+            onTap: () {
+              Get.toNamed(PagesName.shopingFavoriteScrn);
+            },
+          ),
+          body: content(context)),
+    );
   }
 
   Widget content(BuildContext context) {
@@ -247,8 +264,23 @@ class ShoppingScreen extends StatelessWidget {
                     ? const ProgressCircularWidgetCustom()
                     : _shopingController.listShopingStore.isNotEmpty
                         ? buildItemsShoping()
-                        : Center(
-                            child: Text('${'20'.tr}'),
+                        : GestureDetector(
+                            onTap: () {
+                              _shopingController.fetchAllShoppingStore();
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: Text('${'20'.tr}'),
+                                ),
+                                SizedBox(height: Get.height * 0.01),
+                                Icon(
+                                  Icons.refresh,
+                                  size: Get.width * 0.08,
+                                )
+                              ],
+                            ),
                           ),
               );
             },
@@ -262,6 +294,9 @@ class ShoppingScreen extends StatelessWidget {
   Widget? builIconNotifcation() {
     return Obx(
       () => NotificationWidgetCustom(
+        onTap: () {
+          Get.to(() => MessagesView());
+        },
         showCartBadge: homeContrler.showCartBadge.value,
         backgroundMessagesLength: homeContrler.backgroundMessagesLength.value,
       ),

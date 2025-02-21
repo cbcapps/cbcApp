@@ -83,6 +83,9 @@ class Calculatorscreen extends StatelessWidget {
                 TextTextFieldCustom(
                   txtTitle: '200'.tr,
                   controller: _controller.billAmountController,
+                  onChanged: (p0) {
+                    _controller.changeTextBillAmount();
+                  },
                 ),
 
                 sizedBoxCustom(context, 0.02),

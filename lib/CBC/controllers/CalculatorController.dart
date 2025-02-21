@@ -36,6 +36,22 @@ class CalculatorController extends GetxController {
   late TextEditingController discountMoneyAmountController;
   late TextEditingController resultAfterDiscountController;
 
+  changeTextBillAmount() {
+    try {
+      String txtBill = billAmountController.text.trim();
+
+      if (txtBill.contains(',')) {
+        txtBill.replaceAll(',', '');
+      }
+
+      billAmountController.text = MethodsClassUTls.formatNumber(
+          number: double.parse(billAmountController.text) + 0.0);
+    } catch (e) {
+      billAmountController.text = '';
+    }
+    // end Method
+  }
+
   bool checkFieldsMethod() {
     bool billAmount = billAmountController.text.trim().isNotEmpty;
     bool percent = percentDiscountController.text.trim().isNotEmpty;
@@ -53,7 +69,12 @@ class CalculatorController extends GetxController {
 
   calculateAmountMethod() {
     if (!checkFieldsMethod()) return;
-    double billAmount = double.parse(billAmountController.text.trim());
+
+    String txtBill = billAmountController.text.trim();
+    if (txtBill.contains(',')) {
+      txtBill = txtBill.replaceAll(',', '');
+    }
+    double billAmount = double.parse(txtBill);
     int discountPercentage = int.parse(percentDiscountController.text.trim());
     double amountAfterDiscount = 0.0;
     amountAfterDiscount = billAmount - (billAmount * discountPercentage / 100);

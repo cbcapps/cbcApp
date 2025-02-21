@@ -7,11 +7,17 @@ import '../../../res/colors.dart';
 import '../../../res/pages_name.dart';
 
 class PopMenueHomeOfferPageCustom extends StatelessWidget {
-  const PopMenueHomeOfferPageCustom({super.key});
+  const PopMenueHomeOfferPageCustom({
+    super.key,
+    this.onOpened,
+  });
+
+  final void Function()? onOpened;
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
+      onOpened: onOpened,
       borderRadius: BorderRadius.circular(10),
       padding: EdgeInsets.zero,
       // Adjust the width of the popup menu

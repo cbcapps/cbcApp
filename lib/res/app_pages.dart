@@ -29,7 +29,9 @@ import 'package:ui_ecommerce/AQS/views/Products.dart';
 import 'package:ui_ecommerce/CBC/views/RecentlyStories.dart';
 import 'package:ui_ecommerce/Togather/views/landing.dart';
 
+import '../CBC/bindings/FavoriteUserItemsBinding.dart';
 import '../CBC/bindings/LandingCbc_bindings.dart';
+
 import '../CBC/views/AccountView.dart';
 import '../CBC/views/CalculatorScren.dart';
 import '../CBC/views/Card.dart';
@@ -39,9 +41,16 @@ import '../CBC/views/HieghestStoresDinar.dart';
 import '../CBC/views/MapStoresScren.dart';
 import '../CBC/views/OffersScren.dart';
 import '../CBC/views/SearchShopingScrn.dart';
+import '../CBC/views/SearchView.dart';
 import 'pages_name.dart';
 
 final List<GetPage> appPages = [
+  GetPage(
+    name: PagesName.searchView,
+    page: () => Searchview(),
+    transition: Transition.fade,
+    fullscreenDialog: true,
+  ),
   GetPage(
     name: PagesName.homeCBC,
     page: () => Home_cbc(),
@@ -74,6 +83,7 @@ final List<GetPage> appPages = [
   ),
   GetPage(
     name: PagesName.shopingFavoriteScrn,
+    binding: FavoriteUserItemsBinding(),
     page: () => FavoriteShopingItemScreen(),
     transition: Transition.fade,
     fullscreenDialog: true,
@@ -87,6 +97,7 @@ final List<GetPage> appPages = [
   ),
   GetPage(
     name: PagesName.cardScrn,
+    // binding: CardBindings(),
     page: () => CardView(),
     transition: Transition.fade,
     fullscreenDialog: true,

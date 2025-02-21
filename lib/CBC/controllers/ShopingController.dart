@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,16 +9,16 @@ import '../models/ShoppingModel.dart';
 import '../widgets/shoping_page/dialog_widget_notice_user_favorite.dart';
 
 abstract class AbstractShopingcontroller extends GetxController {
+  setListToEmpty();
+  Future<void> callMethodFromOtherController({int? curentPage});
   Future<void> listnerScrollControllerMethod();
-  Future<void> listnerScrollControllerFavoritePageMethod();
   Future<void> calledSearchShopingMethod(String inputTxt);
   Future<void> changeShopingIsFavorite(int id);
   Future<void> changeShopingIsFavoriteSearchList(int id);
-  Future<void> removeItemFromListShopingFavorite(int id);
+  // Future<void> removeItemFromListShopingFavorite(int id);
 
   // Backend Methods
-  Future<void> fetchAllShoppingStoreFavoriteUser();
-  Future<void> fetchAllShoppingStore();
+  Future<void> fetchAllShoppingStore({int? curentPage});
   Future<void> addshopingToFavoriteMethod(String storeId);
   Future<void> deleteshopingToFavoriteMethod(String storeId);
   // end Abstract Class
@@ -31,7 +29,7 @@ class Shopingcontroller extends AbstractShopingcontroller {
   void onInit() async {
     super.onInit();
     scrollController = ScrollController();
-    scrollControllerFavoriteUser = ScrollController();
+
     cbcNumbrControler = TextEditingController();
     // myController = TextEditingController();
     sharedPreferences = await SharedPreferences.getInstance();
@@ -49,10 +47,9 @@ class Shopingcontroller extends AbstractShopingcontroller {
     // }
 
     listnerScrollControllerMethod();
-    listnerScrollControllerFavoritePageMethod();
 
     await fetchAllShoppingStore();
-    fetchAllShoppingStoreFavoriteUser();
+    // fetchAllShoppingStoreFavoriteUser();
 
     // end Method
   }
@@ -61,14 +58,14 @@ class Shopingcontroller extends AbstractShopingcontroller {
   void dispose() {
     super.dispose();
     scrollController.dispose();
-    scrollControllerFavoriteUser.dispose();
+
     cbcNumbrControler.dispose();
     // myController.dispose();
     // end Method
   }
 
   late ScrollController scrollController;
-  late ScrollController scrollControllerFavoriteUser;
+
   late TextEditingController cbcNumbrControler;
   // late TextEditingController myController;
 
@@ -79,19 +76,19 @@ class Shopingcontroller extends AbstractShopingcontroller {
       instagram: '',
       logo: '',
       isFavorite: 0,
+      totalNumberItems: 0,
       name: 'No Name');
 
   late SharedPreferences sharedPreferences;
   RxBool _checkAddCBCnumbr = true.obs;
   bool _isLoadingSearch = false;
   bool _isLoading = true;
-  bool _isFetchingFavorite = false;
-  bool _isLoadingFavoritePage = true;
+  bool _isFetching = false; // Add this flag at the top of your class
+
   RxBool _loadingPagination = false.obs;
-  RxBool _loadingPaginationFavoritePage = false.obs;
+
   RxBool _loadingPaginationSearch = false.obs;
   int _currentPage = 1;
-  int _currentFavoritePage = 1;
 
   RxInt _chosenFilter = 0.obs;
   String _typeFilter = 'id';
@@ -107,7 +104,6 @@ class Shopingcontroller extends AbstractShopingcontroller {
 
   List<ShoppingModel> _listShopingStore = <ShoppingModel>[].obs;
   List<ShoppingModel> _listShopingSearch = [];
-  RxList<ShoppingModel> _listShopingUserFavorite = <ShoppingModel>[].obs;
 
   RxList<String> _listImagesSliders = <String>[
     // Shopping
@@ -120,7 +116,6 @@ class Shopingcontroller extends AbstractShopingcontroller {
 
   // Getter
   // ---------------
-  RxList<ShoppingModel> get listShopingUserFavorite => _listShopingUserFavorite;
   List<ShoppingModel> get listShopingSearch => _listShopingSearch;
   ShoppingModel get slectedShoping => _slectedShoping;
   List<FilterShoppingModel> get listFilters => _listFilters;
@@ -131,11 +126,9 @@ class Shopingcontroller extends AbstractShopingcontroller {
   RxBool get loadingPagination => _loadingPagination;
   bool get isLoadingSearch => _isLoadingSearch;
   RxBool get loadingPaginationSearch => _loadingPaginationSearch;
-  RxBool get loadingPaginationFavoritePage => _loadingPaginationFavoritePage;
 
   RxInt get chosenFilter => _chosenFilter;
   bool get isLoading => _isLoading;
-  bool get isLoadingFavoritePage => _isLoadingFavoritePage;
 
   Future<void> onRefreshMethod() async {
     _currentPage = 1;
@@ -236,11 +229,18 @@ class Shopingcontroller extends AbstractShopingcontroller {
   // }
 
   @override
-  Future<void> fetchAllShoppingStore() async {
+  Future<void> fetchAllShoppingStore({int? curentPage}) async {
+    print('\n');
+    print('The Method Has Called To Fetch All Shoping');
+    print('\n');
     if (_listShopingStore.isEmpty) {
       // _isLoading(true);
       _isLoading = true;
       update();
+    }
+
+    if (curentPage != null) {
+      _currentPage = curentPage;
     }
     try {
       // String
@@ -252,6 +252,7 @@ class Shopingcontroller extends AbstractShopingcontroller {
         '',
         '25',
         _userId,
+        // '',
         '',
       );
       if (offersList != null) {
@@ -322,15 +323,22 @@ class Shopingcontroller extends AbstractShopingcontroller {
 
   @override
   Future<void> calledSearchShopingMethod(String inputTxt) async {
-    await Future.delayed(Duration(milliseconds: 1500));
     _listShopingSearch = [];
-    update();
+    _isLoadingSearch = true;
 
-    await fetchStoresBySearch(inputTxt);
+    update();
+    await Future.delayed(
+      Duration(milliseconds: 1500),
+      () async {
+        await fetchStoresBySearch(inputTxt, isSearch: true);
+      },
+    );
+
     // end Method
   }
 
-  Future<void> fetchStoresBySearch(String inputTxt) async {
+  Future<void> fetchStoresBySearch(String inputTxt,
+      {bool isSearch = false}) async {
     // await Future.delayed(Duration(milliseconds: 2000));
 
     if (_listShopingSearch.isEmpty) {
@@ -349,6 +357,9 @@ class Shopingcontroller extends AbstractShopingcontroller {
       );
 
       if (listResult != null) {
+        if (isSearch) {
+          _listShopingSearch = [];
+        }
         _listShopingSearch.addAll(listResult);
 
         // for (final ShoppingModel jsonItem in _listShopingSearch!) {
@@ -385,41 +396,44 @@ class Shopingcontroller extends AbstractShopingcontroller {
   //   return _list;
   // }
 
+  // @override
+  // Future<void> listnerScrollControllerMethod() async {
+  //   scrollController.addListener(() async {
+  //     double threshold = scrollController.position.maxScrollExtent * 0.8;
+  //     if (scrollController.position.pixels >= threshold) {
+  //       _loadingPagination.value = true;
+
+  //       await fetchAllShoppingStore();
+  //       _loadingPagination.value = false;
+  //     }
+  //   });
+  //   // end Method
+  // }
   @override
   Future<void> listnerScrollControllerMethod() async {
     scrollController.addListener(() async {
-      double threshold = scrollController.position.maxScrollExtent * 0.8;
+      if (_isFetching) return; // Prevent multiple calls
+
+      // Check if all items are already loaded
+
+      if (_listShopingStore.isNotEmpty) {
+        final totalItems = _listShopingStore[0].totalNumberItems ?? 0;
+        if (_listShopingStore.length >= totalItems) return;
+      }
+
+      final threshold = scrollController.position.maxScrollExtent;
       if (scrollController.position.pixels >= threshold) {
+        _isFetching = true; // Set flag to block concurrent requests
         _loadingPagination.value = true;
 
-        await fetchAllShoppingStore();
-        _loadingPagination.value = false;
+        try {
+          await fetchAllShoppingStore();
+        } finally {
+          _isFetching = false; // Reset flag even if error occurs
+          _loadingPagination.value = false;
+        }
       }
     });
-    // end Method
-  }
-
-  @override
-  Future<void> listnerScrollControllerFavoritePageMethod() async {
-    scrollControllerFavoriteUser.addListener(() async {
-      print('\n');
-      print('Scroll Controller Favorite');
-      print('\n');
-
-      double threshold =
-          // scrollControllerFavoriteUser.position.maxScrollExtent * 0.8;
-          scrollControllerFavoriteUser.position.maxScrollExtent;
-      if (scrollControllerFavoriteUser.position.pixels >= threshold &&
-          !_isFetchingFavorite) {
-        _isFetchingFavorite = true;
-        _loadingPaginationFavoritePage.value = true;
-
-        await fetchAllShoppingStoreFavoriteUser();
-        _loadingPaginationFavoritePage.value = false;
-        _isFetchingFavorite = false;
-      }
-    });
-    // end Method
   }
 
   @override
@@ -431,10 +445,10 @@ class Shopingcontroller extends AbstractShopingcontroller {
         if (shop.id == id) {
           shop.isFavorite = shop.isFavorite == 0 ? 1 : 0;
 
-          _listShopingUserFavorite.value = [];
-          _currentFavoritePage = 1;
+          // _listShopingUserFavorite.value = [];
+          // _currentFavoritePage = 1;
 
-          _isLoadingFavoritePage = true;
+          // _isLoadingFavoritePage = true;
           _listShopingSearch = [];
 
           _listShopingSearch.addAll(_listShopingStore);
@@ -447,7 +461,7 @@ class Shopingcontroller extends AbstractShopingcontroller {
             await deleteshopingToFavoriteMethod(shop.id.toString());
             // Delete From Favorite
           }
-          fetchAllShoppingStoreFavoriteUser();
+          // fetchAllShoppingStoreFavoriteUser();
           break;
         }
 
@@ -467,65 +481,28 @@ class Shopingcontroller extends AbstractShopingcontroller {
     // end Method
   }
 
-  @override
-  Future<void> fetchAllShoppingStoreFavoriteUser() async {
-    if (_listShopingUserFavorite.isEmpty) {
-      // _isLoading(true);
-      _isLoadingFavoritePage = true;
-      update();
-    }
-    try {
-      // String
-      // final userIdShared = sharedPreferences.getString(KeySherdPrefs.numbrCardCBC);
-      List<ShoppingModel>? shopingList =
-          await RemoteServices.fetchShoppingModel(
-        _currentFavoritePage.toString(),
-        'id',
-        'desc',
-        '',
-        '25',
-        _userId,
-        'true',
-      );
-      if (shopingList != null) {
-        _listShopingUserFavorite.addAll(shopingList);
-        if (_listShopingStore.isNotEmpty) {
-          _currentFavoritePage++;
-        }
+  // @override
+  // Future<void> removeItemFromListShopingFavorite(int id) async {
+  //   for (final ShoppingModel shop in _listShopingUserFavorite) {
+  //     if (shop.id == id) {
+  //       // _listShopingUserFavorite.remove(shop);
+  //       // update();
+  //       await deleteshopingToFavoriteMethod(shop.id.toString());
 
-        update();
+  //       _listShopingSearch = [];
+  //       _listShopingStore = [];
+  //       _currentFavoritePage = 1;
+  //       _currentPage = 1;
+  //       _listShopingUserFavorite.value = [];
+  //       fetchAllShoppingStoreFavoriteUser();
 
-        _loadingPaginationFavoritePage.value = false;
-      } else {}
-    } finally {
-      _isLoadingFavoritePage = false;
-      update();
-    }
-    update();
-  }
-
-  @override
-  Future<void> removeItemFromListShopingFavorite(int id) async {
-    for (final ShoppingModel shop in _listShopingUserFavorite) {
-      if (shop.id == id) {
-        // _listShopingUserFavorite.remove(shop);
-        // update();
-        await deleteshopingToFavoriteMethod(shop.id.toString());
-
-        _listShopingSearch = [];
-        _listShopingStore = [];
-        _currentFavoritePage = 1;
-        _currentPage = 1;
-        _listShopingUserFavorite.value = [];
-        fetchAllShoppingStoreFavoriteUser();
-
-        fetchAllShoppingStore();
-        break;
-      }
-      // end For
-    }
-    // end Method
-  }
+  //       fetchAllShoppingStore();
+  //       break;
+  //     }
+  //     // end For
+  //   }
+  //   // end Method
+  // }
 
   @override
   Future<void> changeShopingIsFavoriteSearchList(int id) async {
@@ -536,11 +513,11 @@ class Shopingcontroller extends AbstractShopingcontroller {
         if (shop.id == id) {
           shop.isFavorite = shop.isFavorite == 0 ? 1 : 0;
           _listShopingStore = [];
-          _listShopingUserFavorite.value = [];
-          _currentFavoritePage = 1;
+          // _listShopingUserFavorite.value = [];
+          // _currentFavoritePage = 1;
           _currentPage = 1;
           _isLoading = true;
-          _isLoadingFavoritePage = true;
+          // _isLoadingFavoritePage = true;
           update();
           // Call Method Backend ADD Or Delete From Favorite
           if (shop.isFavorite == 1) {
@@ -556,7 +533,7 @@ class Shopingcontroller extends AbstractShopingcontroller {
           // _currentPage = 1;
           // update();
           fetchAllShoppingStore();
-          fetchAllShoppingStoreFavoriteUser();
+          // fetchAllShoppingStoreFavoriteUser();
           break;
         }
 
@@ -573,6 +550,25 @@ class Shopingcontroller extends AbstractShopingcontroller {
     }
 
     // end Method
+  }
+
+  @override
+  setListToEmpty() {
+    _listShopingSearch = [];
+    _listShopingStore = [];
+    update();
+    //end Method
+  }
+
+  @override
+  Future<void> callMethodFromOtherController({int? curentPage}) async {
+    setListToEmpty();
+    sharedPreferences.reload();
+    final cardNumbr = sharedPreferences.getInt(KeySherdPrefs.numbrCardCBC) ?? 0;
+
+    _userId = cardNumbr.toString();
+    await fetchAllShoppingStore(curentPage: curentPage);
+    // End Method
   }
 
   // end Class Controller of Shopping

@@ -1,14 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:textfield_search/textfield_search.dart';
 import 'package:ui_ecommerce/CBC/controllers/AccountController.dart';
 import 'package:ui_ecommerce/res/colors.dart';
-
-import '../models/TestItem.dart';
 
 class EvaluationView extends StatelessWidget {
   EvaluationView({super.key});
@@ -189,6 +184,9 @@ class EvaluationView extends StatelessWidget {
           builder: (c) {
             return TextFieldSearch(
               label: 'My Label',
+              minStringLength: 1,
+              itemsInView: 8,
+              resultsBackgroundColor: Colors.white,
               controller: controller.myController,
               future: () {
                 return controller.fetchData();

@@ -18,14 +18,15 @@ class Store {
   });
 
   factory Store.fromJson(Map<String, dynamic> json) => Store(
-    stories: List<Story>.from(json["stories"].map((x) => Story.fromJson(x))),
-    ads: List<dynamic>.from(json["Ads"].map((x) => x)),
-  );
+        stories:
+            List<Story>.from(json["stories"].map((x) => Story.fromJson(x))),
+        ads: List<dynamic>.from(json["Ads"].map((x) => x)),
+      );
 
   Map<String, dynamic> toJson() => {
-    "stories": List<dynamic>.from(stories.map((x) => x.toJson())),
-    "Ads": List<dynamic>.from(ads.map((x) => x)),
-  };
+        "stories": List<dynamic>.from(stories.map((x) => x.toJson())),
+        "Ads": List<dynamic>.from(ads.map((x) => x)),
+      };
 }
 
 class Story {
@@ -60,34 +61,34 @@ class Story {
   });
 
   factory Story.fromJson(Map<String, dynamic> json) => Story(
-    id: json["id"],
-    name: json["name"],
-    logo: json["logo"],
-    description: json["description"],
-    nameKur: json["name_kur"],
-    category: json["category"],
-    city: json["city"],
-    active: json["active"],
-    facebook: json["facebook"],
-    instagram: json["instagram"],
-    telegram: json["telegram"],
-    whatsapp: json["whatsapp"],
-    discountCount: json["discountCount"],
-  );
+        id: json["id"],
+        name: json["name"],
+        logo: json["logo"],
+        description: json["description"],
+        nameKur: json["name_kur"],
+        category: json["category"],
+        city: json["city"],
+        active: json["active"],
+        facebook: json["facebook"],
+        instagram: json["instagram"],
+        telegram: json["telegram"],
+        whatsapp: json["whatsapp"],
+        discountCount: json["discountCount"].toString(),
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "logo": logo,
-    "description": description,
-    "name_kur": nameKur,
-    "category": category,
-    "city": city,
-    "active": active,
-    "facebook": facebook,
-    "instagram": instagram,
-    "telegram": telegram,
-    "whatsapp": whatsapp,
-    "discountCount": discountCount,
-  };
+        "id": id,
+        "name": name,
+        "logo": logo,
+        "description": description,
+        "name_kur": nameKur,
+        "category": category,
+        "city": city,
+        "active": active,
+        "facebook": facebook,
+        "instagram": instagram,
+        "telegram": telegram,
+        "whatsapp": whatsapp,
+        "discountCount": discountCount,
+      };
 }

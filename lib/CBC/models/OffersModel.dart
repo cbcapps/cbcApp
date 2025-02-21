@@ -1,8 +1,10 @@
-List<OffersModel> offerModelFromJson(dynamic extracted) =>
-    List<OffersModel>.from(extracted.map((x) => OffersModel.fromJson(x)));
+List<OffersModel> offerModelFromJson(dynamic extracted, int totalItems) =>
+    List<OffersModel>.from(
+        extracted.map((x) => OffersModel.fromJson(x, totalItems)));
 
 class OffersModel {
   int id;
+  int totalNumberItems;
   String name;
   String logo;
 
@@ -12,6 +14,7 @@ class OffersModel {
 
   OffersModel({
     required this.id,
+    required this.totalNumberItems,
     required this.name,
     required this.logo,
     required this.link,
@@ -30,8 +33,10 @@ class OffersModel {
     },
 */
 
-  factory OffersModel.fromJson(Map<String, dynamic> json) => OffersModel(
+  factory OffersModel.fromJson(Map<String, dynamic> json, int totalItems) =>
+      OffersModel(
         id: json["id"] ?? 0,
+        totalNumberItems: totalItems,
         name: json["name"] ?? 'Empty Name',
         logo: json["imgPath"] ?? '',
         link: json["link"] ?? '',

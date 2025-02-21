@@ -16,6 +16,8 @@ import 'package:ui_ecommerce/CBC/models/Store.dart';
 import 'package:ui_ecommerce/CBC/models/StoreModel.dart';
 import 'package:ui_ecommerce/CBC/models/subCity.dart';
 import 'package:http_parser/http_parser.dart';
+import '../../main.dart';
+import '../../res/key_sherd_prefs.dart';
 import '../models/CardPriceModel.dart';
 import '../models/CategoryMapModel.dart';
 import '../models/LangStoresModel.dart';
@@ -26,7 +28,7 @@ import '../models/Slider.dart';
 
 class RemoteServices {
   static var client = http.Client();
-  static var baseUrl = 'https://89.116.110.51:3000/cbc/api/v1/';
+  // static var baseUrl = 'https://89.116.110.51:3000/cbc/api/v1/';
   static var baseUrlV2 = 'https://89.116.110.51:3300/cbc/api/v2/';
   // https://89.116.110.51:3300/cbc/api/v2/getOffers?itemsPerPage=10&page=1&sortBy=discount&orderBy=desc&pinStatus=
 //Login
@@ -126,9 +128,7 @@ class RemoteServices {
     // https://89.116.110.51:3300/cbc/api/v2/getDiscountrecently?itemsPerPage=10&page=1&sortBy=id&orderBy=desc
     try {
       var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
-      // https://89.116.110.51:3000/cbc/api/v1/getDiscountrecently
       if (response.statusCode == 200) {
-        // var jsonData = response.body;
         final jsonData = json.decode(response.body);
         final extracted = jsonData['DataOfTable'];
         List<RecentlyDiscount> stories =
@@ -147,23 +147,20 @@ class RemoteServices {
     final String endpoint =
         'getOffers?itemsPerPage=20&page=$page&sortBy=discount&orderBy=$orderBy&pinStatus=';
 
-    // String url = 'https://89.116.110.51:3300/cbc/api/v2/getDiscountrecently';
-    // String url =
-    //     'https://89.116.110.51:3300/cbc/api/v2/getDiscountHighest?itemsPerPage=25&page=2&orderBy=desc';
-    // 'https://89.116.110.51:3300/cbc/api/v2/getDiscountHighest?itemsPerPage=25&page=2&orderBy=desc';
-    // String url =
-    //     'https://89.116.110.51:3300/cbc/api/v2/getDiscountHighest?itemsPerPage=25&page=$page&orderBy=$orderBy';
-
     try {
       var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
 
-      // var response = await client.get(Uri.parse(baseUrl + endpoint));
-      //Original // https://89.116.110.51:3000/cbc/api/v1/getDiscountrecently
+      print('\n');
+      print('The URL OFFers is ${baseUrlV2 + endpoint}');
+      print('\n');
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final extracted = jsonData['DataOfTable'];
+        final numbrItems = jsonData['totalItems'];
 
-        List<OffersModel> stories = offerModelFromJson(extracted);
+        List<OffersModel> stories =
+            offerModelFromJson(extracted, numbrItems ?? 0);
         return stories;
       } else {
         return null;
@@ -188,16 +185,18 @@ class RemoteServices {
     try {
       var response = await client.get(Uri.parse(baseUrlV2 + endPoint));
 
-      // print('\n');
-      // print('===============-------------------====================454=====');
-      // print('\n');
-      // print('The URL Shoping is ${baseUrlV2 + endPoint}');
+      print('\n');
+      print(
+          'The Url Search Shopping is ${baseUrlV2 + endPoint} and User Id is $userId');
+      print('\n');
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final extracted = jsonData['DataOfTable'];
+        final totalItems = jsonData['totalItems'];
 
-        List<ShoppingModel> stories = shoppingModelFromJson(extracted);
+        List<ShoppingModel> stories =
+            shoppingModelFromJson(extracted, totalItems);
         return stories;
       } else {
         // print('\n');
@@ -207,10 +206,10 @@ class RemoteServices {
         return null;
       }
     } catch (e) {
-      print('\n');
-      print('=============================');
-      print('fetchShoppingModel Error response.statusCode  == ${e}');
-      print('\n');
+      // print('\n');
+      // print('=============================');
+      // print('fetchShoppingModel Error response.statusCode  == ${e}');
+      // print('\n');
       return null;
     }
   }
@@ -239,31 +238,14 @@ class RemoteServices {
         body: jsonBody,
         headers: {'Content-Type': 'application/json'},
       );
-      print('\n');
-      print('=============================');
-      print('\n');
-      print('Url Add Favorite is ${baseUrlV2 + endPoint}');
-      print('\n');
-      print('The User Id = $userId And Store id is $storeId');
-      print('\n');
-      print('=============================');
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        print('\n');
-        print('=============================');
-        print('Add To Favorite is $jsonData');
-        print('\n');
-        // final extracted = jsonData['DataOfTable'];
+        // final jsonData = json.decode(response.body);
 
         return 'success';
       } else {
         return 'wrong';
       }
     } catch (e) {
-      print('\n');
-      print('=============================');
-      print('Add Shoping Favorite Error response.statusCode  == ${e}');
-      print('\n');
       return 'wrong';
     }
   }
@@ -292,22 +274,13 @@ class RemoteServices {
       );
 
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        print('\n');
-        print('=============================');
-        print('Delete Shoping   Favorite is $jsonData');
-        print('\n');
-        // final extracted = jsonData['DataOfTable'];
+        // final jsonData = json.decode(response.body);
 
         return 'success';
       } else {
         return 'wrong';
       }
     } catch (e) {
-      print('\n');
-      print('=============================');
-      print('Delete Shoping  Error response.statusCode  == ${e}');
-      print('\n');
       return 'wrong';
     }
   }
@@ -317,16 +290,6 @@ class RemoteServices {
     String longitude,
     String? categorySearch,
   ) async {
-    // String url =
-    //     'https://89.116.110.51:3300/cbc/api/v2/GetAllStories?q=$txtSearch&itemsPerPage=$numbrItem&page=$page&sortBy=$typeFilter&orderBy=$descAsc&subCity=';
-    // baseUrlV2 = 'https://89.116.110.51:3300/cbc/api/v2/';
-    // final String endPoint =
-    //     'getShopping?q=$txtSearch&itemsPerPage=$numbrItem&page=$page&sortBy=$typeFilter&orderBy=$descAsc&pinStatus=';
-
-    /*
-    https://89.116.110.51:3300/cbc/api/v2/getBranches?itemsPerPage=10&page=1&sortBy=id&orderBy=desc&lat=33.3045585&lng=44.3421706
-    */
-
     final String endPoint =
         'getBranches?itemsPerPage=10000&page=1&sortBy=id&orderBy=desc&lat=$latitude&lng=$longitude&categorySearch=$categorySearch';
     // lat =33.3045585
@@ -334,35 +297,19 @@ class RemoteServices {
     // 'getBranches?itemsPerPage=10000&page=1&sortBy=id&orderBy=desc&lat=33.3045585&lng=44.3421706&categorySearch=$categorySearch';
 
     try {
-      print('\n');
-      print('The Url is ${baseUrlV2 + endPoint}');
-      print('\n');
       var response = await client.get(Uri.parse(baseUrlV2 + endPoint));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final extracted = jsonData['DataOfTable'];
-        // print('\n');
-        // print('====================================');
-        // print('\n');
-        // print('Branched is $extracted');
-        // print('\n');
 
         List<LangStoresModel> stories =
             LangStoresModelFromJsonDecode(extracted);
         return stories;
       } else {
-        // print('\n');
-        // print('=============================');
-        // print(
-        // print('\n');
         return null;
       }
     } catch (e) {
-      print('\n');
-      print('=============================');
-      print('LangStoresModel Error response.statusCode  == ${e}');
-      print('\n');
       return null;
     }
   }
@@ -385,17 +332,9 @@ class RemoteServices {
             categoryMapModelFromJsonDecode(extracted);
         return stories;
       } else {
-        // print('\n');
-        // print('=============================');
-        // print(
-        // print('\n');
         return null;
       }
     } catch (e) {
-      print('\n');
-      print('=============================');
-      print('fetchCategoryForLatLongData Error response.statusCode  == ${e}');
-      print('\n');
       return null;
     }
   }
@@ -404,7 +343,14 @@ class RemoteServices {
   static Future<List<Comp>?> fetchComps() async {
     var endpoint = 'getAllComps';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+
+      print('\n');
+      print('=======================');
+      print('The URL COMPS ${baseUrlV2 + endpoint}');
+      print('\n');
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<Comp> items = compFromJson(jsonData);
@@ -421,7 +367,9 @@ class RemoteServices {
   static Future<List<Message>?> fetchMessages() async {
     var endpoint = 'getMessages';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<Message> items = messageFromJson(jsonData);
@@ -438,7 +386,13 @@ class RemoteServices {
   static Future<List<SubCity>?> fetchSubCity(id) async {
     var endpoint = 'getSubCity/${id}';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      print('\n');
+      print('=====================');
+      print('URL Sub City is ${baseUrlV2 + endpoint}');
+      print('\n');
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<SubCity> list = subCityFromJson(jsonData);
@@ -455,7 +409,9 @@ class RemoteServices {
   static Future<List<Category>?> fetchCategories(id) async {
     var endpoint = 'getCategory/${id}';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<Category> list = categoryFromJson(jsonData);
@@ -479,6 +435,13 @@ class RemoteServices {
     // 'getdiscountHighest?itemsPerPage=20&page=$page&orderby=asc&discountWithoutPercent=$isDinnar';
     try {
       var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+
+      print('\n');
+      print('\n');
+      print(
+          'Is Dinnar =$isDinnar The URL Remote Server is ${baseUrlV2 + endpoint}');
+      print('\n');
+      print('\n');
 
       //
       if (response.statusCode == 200) {
@@ -526,16 +489,37 @@ class RemoteServices {
   //fetch cities
   static Future<List<City>?> fetchCities() async {
     var endpoint = 'getAllCities';
+    // https://89.116.110.51:3300/cbc/api/v2/getAllCities
+    //
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+
+      print('\n');
+      print('=======================');
+      print('The URL CITY ${baseUrlV2 + endpoint}');
+      print('\n');
       if (response.statusCode == 200) {
-        var jsonData = response.body;
-        List<City> cities = cityFromJson(jsonData);
+        // var jsonData = response.body;
+
+        // print('\n');
+        // print('The Body Success is ${response.body}');
+        // print('\n');
+        final jsonData = json.decode(response.body);
+        final extracted = jsonData['DataOfTable'];
+        List<City> cities = cityFromJson(extracted);
         return cities;
       } else {
+        // print('\n');
+        // print('The Body Error is ${response.body}');
+        // print('\n');
         return null;
       }
     } catch (e) {
+      // print('\n');
+      // print('The Body Error Catch is $e');
+      // print('\n');
       return null;
     }
   }
@@ -544,7 +528,9 @@ class RemoteServices {
   static Future<List<SliderBar>?> fetchSliders() async {
     var endpoint = 'getSliders';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<SliderBar> sliders = sliderFromJson(jsonData);
@@ -564,14 +550,19 @@ class RemoteServices {
 
   static Future<Store?> fetchStoriesBySubCity(subCity) async {
     var endpoint = 'getStoresBySubCity/${subCity}';
-    var response = await client.get(Uri.parse(baseUrl + endpoint));
-    // print(response.body);
-    if (response.statusCode == 200) {
-      // print(111);
-      var jsonData = response.body;
-      return storeFromJson(jsonData);
-    } else {
-      // print(222);
+    try {
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      // print(response.body);
+      if (response.statusCode == 200) {
+        var jsonData = response.body;
+
+        return storeFromJson(jsonData);
+      } else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
   }
@@ -579,32 +570,72 @@ class RemoteServices {
   //Fetch Stories From Endpoint (getStories)
   static Future<Store?> fetchStories(cate, city, orderby) async {
     var endpoint = 'getStoriesBy/${cate}/${city}/${orderby}';
-    var response = await client.get(Uri.parse(baseUrl + endpoint));
-    // print(response.body);
-    if (response.statusCode == 200) {
-      // print(111);
-      var jsonData = response.body;
-      Store sliders = storeFromJson(jsonData);
-      return sliders;
-    } else {
-      // print(222);
+    try {
+      print('\n');
+      print(
+          'The orderby is $orderby The  fetchStories URL is ${baseUrlV2 + endpoint}');
+      print('\n');
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+
+      if (response.statusCode == 200) {
+        var jsonData = response.body;
+        Store sliders = storeFromJson(jsonData);
+        return sliders;
+      } else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
+
+    // end metthod
+  }
+
+  //Fetch Stories From Endpoint (getStories)
+  static Future<double> fetchVersionNumberAppServer() async {
+    // https://89.116.110.51:3300/cbc/api/v2/versions
+    // https://89.116.110.51:3300/cbc/api/v2/
+    var endpoint = 'versions';
+    try {
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      print('\n');
+      print('====================================');
+      print('Server is response.statusCode = ${response.statusCode} ');
+      print('\n');
+
+      if (response.statusCode == 200) {
+        var jsonData = json.decode(response.body);
+        final versionNumber = double.parse(jsonData[0]['version']);
+
+        print('\n');
+        print('====================================');
+        print('\n');
+        print('The Version Number Remote Server is $versionNumber');
+        print('\n');
+        print('\n');
+
+        return versionNumber;
+
+        // version
+      } else {
+        return 0.0;
+      }
+    } catch (e) {
+      return 0.0;
+    }
+
+    // end metthod
   }
 
   //Fetch Stories From Endpoint (getStories)
   static Future<List<CategoryAll>?> fetchFilterCategories(orderby, city) async {
     var endpoint = 'getFilterCategories/${city}/${orderby}';
     try {
-      // print('\n');
-      // print('\n');
-      // print('===========================================');
-      // print('The City is $city && Orderby is $orderby');
-      // print('===========================================');
-      // print('\n');
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
-      // https://89.116.110.51:3000/cbc/api/v1/getFilterCategories/-1/1
-      // print(response.body);
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       var jsonData = response.body;
       List<CategoryAll> list = categoryAllFromJson(jsonData);
       return list;
@@ -615,14 +646,15 @@ class RemoteServices {
 
 //Fetch Stories From Endpoint (getStories)
   static Future<StoreModel?> fetchStore(id) async {
-    print('\n');
-    print('============================');
-    print('\n');
-    print('The ID Store is $id');
-    print('============================');
     var endpoint = 'getStore/$id';
+
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      print('\n');
+      print('Data Server Details Store The URL is ${baseUrlV2 + endpoint}');
+      print('\n');
       if (response.statusCode == 200) {
         var jsonData = response.body;
         // print('Raw JSON response: $jsonData'); // Log the raw JSON response
@@ -630,11 +662,9 @@ class RemoteServices {
         // print('Parsed StoreModel: $store'); // Log the parsed StoreModel
         return store;
       } else {
-        // print('Failed to fetch store: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      // print('Exception caught: $e');
       return null;
     }
   }
@@ -643,9 +673,15 @@ class RemoteServices {
   static Future<CardAbout?> fetchCardAbout() async {
     var endpoint = 'getCardAbout';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
+        print('\n');
+        print('Uerl is ${baseUrlV2 + endpoint}');
+        print('\n');
+
         CardAbout cardAbout = cardAboutFromJson(jsonData);
         return cardAbout;
       } else {
@@ -662,7 +698,9 @@ class RemoteServices {
   static Future<CardType?> fetchCardTypes() async {
     var endpoint = 'getCardType';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         CardType cardType = cardTypeFromJson(jsonData);
@@ -679,7 +717,9 @@ class RemoteServices {
   static Future<CardSale?> fetchCardSales() async {
     var endpoint = 'getCardSales';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       // print('saless: ${response.body}');
       if (response.statusCode == 200) {
         // print("on data");
@@ -697,12 +737,20 @@ class RemoteServices {
   }
 
   //Fetch Account From Endpoint (getAccount)
-  static Future<List<AccountModel>?> fetchAccount(id) async {
+  static Future<List<AccountModel>?> fetchAccountServer(String id) async {
     var endpoint = 'getAccount/${id}';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      // https://89.116.110.51:3300/cbc/api/v2/getAccount/idCard
+      // https://89.116.110.51:3300/cbc/api/v2/getAccount/33944
       if (response.statusCode == 200) {
         var jsonData = response.body;
+
+        print('\n');
+        print('The Account Body is ${response.body}');
+        print('\n');
         List<AccountModel> account = accountModelFromJson(jsonData);
         return account;
       } else {
@@ -717,7 +765,9 @@ class RemoteServices {
   static Future<List<CallCenterModel>?> fetchCallCenter() async {
     var endpoint = 'getCallCenter';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<CallCenterModel> callCenter = callCenterModelFromJson(jsonData);
@@ -734,7 +784,9 @@ class RemoteServices {
   static Future<List<QrModel>?> fetchQr() async {
     var endpoint = 'getQr';
     try {
-      var response = await client.get(Uri.parse(baseUrl + endpoint));
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
       if (response.statusCode == 200) {
         var jsonData = response.body;
         List<QrModel> qr = qrModelFromJson(jsonData);
@@ -750,14 +802,21 @@ class RemoteServices {
   //filter Stories
   static Future filterStories(String title) async {
     var endpoint = 'filterStories/${title}';
-    var response = await client.get(Uri.parse(baseUrl + endpoint));
-    // https://89.116.110.51:3000/cbc/api/v1/filterStories
 
-    if (response.statusCode == 200) {
-      var jsonData = json.decode(response.body);
-      var items = jsonData;
-      return items;
-    } else {
+    try {
+      // New
+      // var response = await client.get(Uri.parse(baseUrl + endpoint));
+      var response = await client.get(Uri.parse(baseUrlV2 + endpoint));
+      // https://89.116.110.51:3300/cbc/api/v2/filterStories/${title}
+
+      if (response.statusCode == 200) {
+        var jsonData = json.decode(response.body);
+        var items = jsonData;
+        return items;
+      } else {
+        return [];
+      }
+    } catch (e) {
       return [];
     }
   }
@@ -767,7 +826,13 @@ class RemoteServices {
     var endpoint = 'uploadFatora'; // Replace with your actual API endpoint
 
     try {
-      var uri = Uri.parse(baseUrl + endpoint);
+      amount.replaceAll(',', '');
+      print('\n');
+      print('The Discount Price Fatora is ${amount} And UserName is $userName');
+      print('\n');
+      // New
+      // var uri = Uri.parse(baseUrl + endpoint);
+      var uri = Uri.parse(baseUrlV2 + endpoint);
 
       // Prepare the file for upload
       var file = await http.MultipartFile.fromPath(
@@ -781,7 +846,7 @@ class RemoteServices {
       var request = http.MultipartRequest('POST', uri);
 
       // Add form fields (title, amount) to the request body
-      request.fields['userName'] = userName; // Adding title to the request
+      request.fields['cardId'] = userName; // Adding title to the request
       request.fields['amount'] =
           amount.toString(); // Adding amount to the request
       request.fields['storeId'] = storeId; // Adding storeId to the request
@@ -795,7 +860,7 @@ class RemoteServices {
       // Check the response status code and read the response body
       if (response.statusCode == 200) {
         var responseBody = await response.stream.bytesToString();
-        // print('Response body: $responseBody');
+        print('Response body: $responseBody');
         return 'Upload successful! Response: $responseBody';
       } else {
         // print(request.fields);
@@ -819,7 +884,9 @@ class RemoteServices {
     });
     try {
       var response = await http.post(
-        Uri.parse(baseUrl + endpoint),
+        // New
+        // Uri.parse(baseUrl + endpoint),
+        Uri.parse(baseUrlV2 + endpoint),
         body: body,
         headers: {'Content-Type': 'application/json'},
       );

@@ -21,6 +21,11 @@ class Searchview extends StatelessWidget {
     print('\n');
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Get.back();
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded)),
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: AppColors.cbcColor,
         centerTitle: true,

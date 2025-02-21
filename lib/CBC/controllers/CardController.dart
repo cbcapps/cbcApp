@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui_ecommerce/CBC/models/CardAbout.dart';
@@ -9,14 +7,15 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../Services/RemoteServices.dart';
 import '../models/CardPriceModel.dart';
 
-abstract class AbstractCardController extends GetxController {
+abstract class AbstractCardController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  closeKeyBoard();
   // Backend Method
   Future<void> getCardPriceMethod();
   // end Abstract Class
 }
 
-class CardController extends AbstractCardController
-    with GetSingleTickerProviderStateMixin {
+class CardController extends AbstractCardController {
   TabController? tabController;
   var isLoadingAbout = true.obs;
   var isLoadingSale = true.obs;
@@ -25,6 +24,10 @@ class CardController extends AbstractCardController
   TextEditingController namePerson = TextEditingController();
   TextEditingController phonePerson = TextEditingController();
   TextEditingController addressPerson = TextEditingController();
+
+  late FocusNode focusName;
+  late FocusNode focusPhone;
+  late FocusNode focusAddress;
   CardAbout? cardAbout;
   CardSale? cardSale;
   CardType? cardType;
@@ -81,7 +84,7 @@ class CardController extends AbstractCardController
   var cityList = <String>[].obs;
   var isLoadingCity = false.obs;
   var selectedFullCity = ''.obs;
-  var selectedType1 = 0.obs;
+  var selectedType1 = 100.obs;
   var compsList = <String>[].obs;
   var isLoadingComps = false.obs;
   var selectedComp = ''.obs;
@@ -237,6 +240,13 @@ class CardController extends AbstractCardController
   @override
   void onInit() {
     tabController = TabController(length: 2, vsync: this);
+
+    final argument = Get.arguments;
+
+    if (argument != null) {
+      tabController!.animateTo(2);
+    } else {}
+
     fetchComps();
     fetchCity();
     fetchCardAbout();
@@ -244,8 +254,10 @@ class CardController extends AbstractCardController
     fetchCardSale();
 
     selectedComp.value = "بدون مؤسسة";
+    focusName = FocusNode();
+    focusPhone = FocusNode();
+    focusAddress = FocusNode();
 
-    // TODO: implement onInit
     super.onInit();
   }
 
@@ -266,6 +278,14 @@ class CardController extends AbstractCardController
     } finally {
       isLoadingCardPrice(false);
     }
+  }
+
+  @override
+  closeKeyBoard() {
+    focusName.unfocus();
+    focusPhone.unfocus();
+    focusAddress.unfocus();
+    // end Method
   }
 
   //  The Old One

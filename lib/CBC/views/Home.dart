@@ -52,7 +52,9 @@ class Home_cbc extends StatelessWidget {
             print('\n');
             print('The Edits is $didPop and Object is $result');
             print('\n');
+
             c.onItemTapped(0);
+
             // _clanding_controller.pages.elementAt(0);
             // pages.elementAt(0);
           },
@@ -147,17 +149,6 @@ class Home_cbc extends StatelessWidget {
           case 2:
             chome_controller.onItemTapped(2);
             break;
-
-          // case 3:
-          //   chome_controller.onItemTapped(0);
-
-          //   break;
-          // case 4:
-          //   chome_controller.onItemTapped(4);
-          //   break;
-          // case 5:
-          //   chome_controller.onItemTapped(3);
-          //   break;
         }
 
         print(index);

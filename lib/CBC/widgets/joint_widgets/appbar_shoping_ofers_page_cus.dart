@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:ui_ecommerce/res/pages_name.dart';
 
 import '../../../res/colors.dart';
 
 AppBar appBarShopingOfersPageCustom(
-  String imageLeading,
-  String txtTitle,
-  double heightCus,
-  double widthCus,
-  Widget menueIcon,
-  Widget? firstIconAction,
-  bool? showArow,
-  bool showFavorite,
-) {
+    String imageLeading,
+    String txtTitle,
+    double heightCus,
+    double widthCus,
+    Widget menueIcon,
+    Widget? firstIconAction,
+    bool? showArow,
+    bool showFavorite,
+    {void Function()? onTap}) {
   return AppBar(
     backgroundColor: AppColors.cbcColor,
 
@@ -71,9 +70,7 @@ AppBar appBarShopingOfersPageCustom(
     actions: [
       showFavorite
           ? GestureDetector(
-              onTap: () {
-                Get.toNamed(PagesName.shopingFavoriteScrn);
-              },
+              onTap: onTap,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Icon(

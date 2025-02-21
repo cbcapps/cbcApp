@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:ui_ecommerce/CBC/controllers/StorePageController.dart';
 import '../../main.dart';
 import '../../res/colors.dart';
 import '../controllers/CardController.dart';
@@ -35,6 +34,7 @@ class cardSales extends StatelessWidget {
           onRefresh: () async {
             controller.fetchCardSale();
             controller.getCardPriceMethod();
+            controller.fetchCity();
           },
           child: ListView(
             shrinkWrap: true,
@@ -179,12 +179,32 @@ class cardSales extends StatelessWidget {
       return Center(
         child: GestureDetector(
           onTap: () async {
+            bool checkCard = controller.selectedType1 == 100;
+
+            if (checkCard) {
+              Get.snackbar('67'.tr, '230'.tr,
+                  colorText: AppColors.aqsfullGreen,
+                  backgroundColor: Colors.white);
+              return;
+            }
             if (_areFieldsEmpty()) {
               Get.snackbar('67'.tr, '66'.tr,
                   colorText: AppColors.aqsfullGreen,
                   backgroundColor: Colors.white);
             } else {
+              final lengthPhone = controller.phonePerson.text.trim().length;
+
+              final check = lengthPhone > 11 || lengthPhone < 10;
+
+              if (check) {
+                Get.snackbar('67'.tr, '226'.tr,
+                    colorText: AppColors.aqsfullGreen,
+                    backgroundColor: Colors.white);
+
+                return;
+              }
               Get.dialog(ProgressCircularWidgetCustom());
+              controller.closeKeyBoard();
 
               await controller.addOrder();
               if (!builder.isLoadingAdded.value) {
@@ -239,12 +259,22 @@ class cardSales extends StatelessWidget {
           _space(Get.height * 0.02),
           _text("186", Get.height * 0.015, Colors.black, FontWeight.w600),
           _space(Get.height * 0.012),
-          _textme("56", controller.namePerson, false),
+          _textme("56", controller.namePerson, controller.focusName, false),
           _space(Get.height * 0.02),
           //phone Person
           _text("3", Get.height * 0.015, Colors.black, FontWeight.w600),
           _space(Get.height * 0.012),
-          _textme("3", controller.phonePerson, false),
+          _textme(
+            "3",
+            controller.phonePerson,
+            controller.focusPhone,
+            false,
+            inputFormat: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            keyboardType: TextInputType.number,
+            maxLength: 11,
+          ),
           _space(Get.height * 0.02),
           //city
           _text("57", Get.height * 0.015, Colors.black, FontWeight.w600),
@@ -259,7 +289,8 @@ class cardSales extends StatelessWidget {
           //poing
           _text("187", Get.height * 0.015, Colors.black, FontWeight.w600),
           _space(Get.height * 0.012),
-          _textme("187", controller.addressPerson, false),
+          _textme(
+              "187", controller.addressPerson, controller.focusAddress, false),
           _space(Get.height * 0.02),
           //
         ],
@@ -482,8 +513,15 @@ class cardSales extends StatelessWidget {
     );
   }
 
-  Padding _textme(String title, TextEditingController textEditingController,
-      bool ispassword) {
+  Padding _textme(
+    String title,
+    TextEditingController textEditingController,
+    FocusNode focusNode,
+    bool ispassword, {
+    TextInputType? keyboardType,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormat,
+  }) {
     return Padding(
       padding: EdgeInsetsDirectional.only(
           start: Get.width * 0.015, end: Get.width * 0.015),
@@ -491,6 +529,10 @@ class cardSales extends StatelessWidget {
         style: TextStyle(fontSize: Get.height * 0.014),
         obscureText: ispassword,
         controller: textEditingController,
+        focusNode: focusNode,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormat,
+        maxLength: maxLength,
         decoration: InputDecoration(
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),

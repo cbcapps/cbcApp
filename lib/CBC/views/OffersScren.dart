@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../res/colors.dart';
 import '../../res/height_width_cus.dart';
 import '../../res/images_path.dart';
+import '../../res/pages_name.dart';
 import '../controllers/Home_controller.dart';
 import '../controllers/OfferesController.dart';
 import '../models/OffersModel.dart';
@@ -13,6 +14,7 @@ import '../widgets/joint_widgets/pop_menue_home_offer_page_cus.dart';
 import '../widgets/loading_widget/progress_circular_cus.dart';
 import '../widgets/offers_page/arrange_suction_cus.dart';
 import '../widgets/offers_page/item_ofer_grid_view_cus.dart';
+import 'Messages.dart';
 
 class OffersScreen extends StatelessWidget {
   OffersScreen({super.key});
@@ -24,20 +26,49 @@ class OffersScreen extends StatelessWidget {
     return
         // Stack(
         //   children: [
-        Scaffold(
-      appBar: appBarShopingOfersPageCustom(AppImages.offerIcon, '192'.tr, 55,
-          55, PopMenueHomeOfferPageCustom(), builIconNotifcation(), null, true),
-      body: content(context),
+        PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        print('\n');
+        print('Offer Screen The Edits is $didPop and Object is $result');
+        print('\n');
+
+        controller.onItemTapped(1);
+
+        // c.onItemTapped(0);
+      },
+      child: Scaffold(
+        appBar: appBarShopingOfersPageCustom(
+          AppImages.offerIcon,
+          '192'.tr,
+          55,
+          55,
+          PopMenueHomeOfferPageCustom(),
+          builIconNotifcation(),
+          null,
+          true,
+          onTap: () {
+            Get.toNamed(PagesName.shopingFavoriteScrn);
+          },
+        ),
+        body: content(context),
+      ),
     );
   }
 
   buildDivider() {
-    return Divider(color: AppColors.black.withOpacity(0.05), height: 0);
+    return Divider(
+        // color: AppColors.black.withOpacity(0.05),
+        color: AppColors.black.withValues(alpha: 0.05),
+        height: 0);
   }
 
   Widget? builIconNotifcation() {
     return Obx(
       () => NotificationWidgetCustom(
+        onTap: () {
+          Get.to(() => MessagesView());
+        },
         showCartBadge: controller.showCartBadge.value,
         backgroundMessagesLength: controller.backgroundMessagesLength.value,
       ),
@@ -91,8 +122,23 @@ class OffersScreen extends StatelessWidget {
                 ? const ProgressCircularWidgetCustom()
                 : _offersController.listOffers.isNotEmpty
                     ? buildGridView(context, _offersController.listOffers)
-                    : Center(
-                        child: Text('${'20'.tr}'),
+                    : GestureDetector(
+                        onTap: () {
+                          _offersController.fetchAllOffers();
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: Text('${'20'.tr}'),
+                            ),
+                            SizedBox(height: Get.height * 0.01),
+                            Icon(
+                              Icons.refresh,
+                              size: Get.width * 0.08,
+                            )
+                          ],
+                        ),
                       ),
           );
         }),

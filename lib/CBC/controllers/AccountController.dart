@@ -1,23 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ui_ecommerce/CBC/controllers/ShopingController.dart';
 import 'package:ui_ecommerce/CBC/models/Account.dart';
 import 'package:ui_ecommerce/main.dart';
 
 import '../../res/key_sherd_prefs.dart';
+import '../../res/method_utls.dart';
+import '../../res/method_widgets.dart';
 import '../Services/RemoteServices.dart';
 import '../models/TestItem.dart';
 
-class AccountController extends GetxController
+abstract class AbstractAccountController extends GetxController
     with GetSingleTickerProviderStateMixin {
+  changeDiscountFormat();
+  closeKeyBoardFatoraMethod();
+  closeKeyBoardMethod();
+  bool checkFieldsActivateAccount();
+
+  // Backend Methods
+
+  Future<void> fetchAccount(String id, {bool isNotFromBtn = false});
+
+  //  end Abstract Class
+}
+
+class AccountController extends AbstractAccountController {
+  @override
+  void dispose() {
+    tabController?.dispose();
+    phone.dispose();
+    number.dispose();
+    myController.dispose();
+    address.dispose();
+    priceDiscount.dispose();
+    focusCardNumbr.dispose();
+    focusPhoneNumbr.dispose();
+    super.dispose();
+    // end Method
+  }
+
+  final Shopingcontroller _shopingcontroller = Get.find();
+
   TabController? tabController;
   late TextEditingController phone = TextEditingController();
   late TextEditingController number = TextEditingController();
   late TextEditingController myController = TextEditingController();
   late TextEditingController address = TextEditingController();
   late TextEditingController priceDiscount = TextEditingController();
+  late FocusNode focusCardNumbr;
+  late FocusNode focusPhoneNumbr;
+  late FocusNode focusNameStoreFatora;
+  late FocusNode focusDiscountPriceFatora;
 
   var isActive = false.obs; // For active/inactive account state
+  var isExpired = false.obs; // For active/inactive account state
+  bool getAcountStatusLoading = false;
   var userName = ''.obs; // User's name
   var walletNumber = ''.obs; // Wallet number
   var dateCard = ''.obs; // Date card or expiry date
@@ -33,6 +71,7 @@ class AccountController extends GetxController
 
   // Function to pick image from gallery
   Future<void> pickImage() async {
+    closeKeyBoardFatoraMethod();
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -62,6 +101,8 @@ class AccountController extends GetxController
 
   // Function to upload image with storeId and amount
   Future<void> uploadImage() async {
+    final numbrCard = sharedPreferences.getInt(KeySherdPrefs.numbrCardCBC);
+
     if (selectedImagePath.isEmpty) {
       Get.snackbar('Error', 'Please select an image first');
       return;
@@ -75,14 +116,32 @@ class AccountController extends GetxController
       Get.snackbar('خطا', 'الرجاء اضافة بطاقتك');
       return;
     }
+    if (numbrCard == null) {
+      Get.snackbar('خطا', 'الرجاء اضافة بطاقتك');
+      return;
+    }
+
+    MethodsWidgetClass.loadingMethod();
 
     // Call RemoteServices uploadImage method
-    String result = await RemoteServices.uploadImage(selectedImagePath.value,
-        userName.value, priceDiscount.text.trim(), myController.text.trim());
+    // priceDiscount.text = priceDiscount.text.trim().replaceAll(',', '');
 
-    if (result == 'Upload successful!') {
+    closeKeyBoardFatoraMethod();
+
+    final priceDiscountFinal = priceDiscount.text.trim().replaceAll(',', '');
+
+    String result = await RemoteServices.uploadImage(selectedImagePath.value,
+        numbrCard.toString(), priceDiscountFinal, myController.text.trim());
+
+    // if (result == 'Upload successful!') {
+    if (result.contains('successfully')) {
+      selectedImagePath.value = '';
+      priceDiscount.text = '';
+      myController.text = '';
+      Get.back();
       Get.snackbar('نجح', 'تم رفع الفاتورة بنجاح');
     } else {
+      Get.back();
       Get.snackbar('Error', result);
     }
   }
@@ -98,43 +157,83 @@ class AccountController extends GetxController
     update();
   }
 
-  void fetchAccount() async {
+  @override
+  Future<void> fetchAccount(String id, {bool isNotFromBtn = false}) async {
     isLoadingAccount(true);
+    isFound(false);
+    isError(false);
+    isExpired(false);
+    update();
     try {
-      var list = await RemoteServices.fetchAccount(number.text.trim());
+      List<AccountModel>? list = await RemoteServices.fetchAccountServer(id);
       if (list != null) {
-        is_added();
         accountList.value = list;
-        print(accountList[0].number);
-        sharedPreferences!.setString('nameAccount', accountList[0].nameEn);
-        sharedPreferences!
-            .setInt(KeySherdPrefs.numbrCardCBC, accountList[0].number);
-        sharedPreferences!.setString('dateAccount', accountList[0].date);
-        sharedPreferences!
-            .setString('discountAccount', accountList[0].discount.toString());
-        sharedPreferences!.setBool('accountActive', true);
-        dateCard.value = accountList[0].date.toString();
-        walletNumber.value = accountList[0].number.toString();
-        userName.value = accountList[0].nameEn;
-        discountCard.value = accountList[0].discount.toString();
-        isActive(true);
+
+        final itemAcount = accountList[0];
+
+        print('\n ');
+        print('\n ');
+        print(
+            'Status Card is ${itemAcount.status} And Discount is ${itemAcount.discount} ');
+        print('\n ');
+        print('\n ');
+        // 38242
+
+        if (itemAcount.status == 'Expired') {
+          isNotFromBtn ? null : isExpired(true);
+          number.text = itemAcount.numberCard.toString();
+          // isActive(false);
+          update();
+
+          await sharedPreferences.setBool('accountActive', false);
+        } else {
+          isNotFromBtn ? null : is_added();
+          print(accountList[0].numberCard);
+          await Future.wait([
+            sharedPreferences.setString('nameAccount', itemAcount.nameEn),
+            sharedPreferences.setInt(
+                KeySherdPrefs.numbrCardCBC, itemAcount.numberCard),
+            sharedPreferences.setString('dateAccount', itemAcount.date),
+            sharedPreferences.setString(
+                'discountAccount', itemAcount.discount.toString()),
+            sharedPreferences.setBool('accountActive', true),
+          ]);
+          dateCard.value = itemAcount.date.toString();
+          walletNumber.value = itemAcount.numberCard.toString();
+          userName.value = itemAcount.nameEn;
+          discountCard.value = itemAcount.discount.toString();
+          await _shopingcontroller.callMethodFromOtherController(curentPage: 1);
+          isActive(true);
+
+          //End  else If Expired
+        }
       } else {
         is_error();
         print('not found');
         isLoadingAccount(false);
       }
     } finally {
+      getAcountStatusLoading = false;
       isLoadingAccount(false);
     }
     isLoadingAccount(false);
     update();
+    // end Method
   }
 
   void fetchRefresh() async {
-    isLoadingAccount(true);
-    sharedPreferences!.clear();
-    fetchAccount();
-    update();
+    final check = checkFieldsActivateAccount();
+
+    if (check) {
+      // isLoadingAccount(true);
+      MethodsWidgetClass.loadingMethod();
+      closeKeyBoardMethod();
+      sharedPreferences.clear();
+      await fetchAccount(number.text.trim());
+
+      Get.back();
+      update();
+    }
   }
 
   Future<List<TestItem>> fetchData() async {
@@ -150,33 +249,108 @@ class AccountController extends GetxController
 
   @override
   void onInit() {
+    print('\n');
+    print(' Instance "AccountController" has been initialized');
+    print('\n');
     tabController = TabController(length: 2, vsync: this);
+
+    focusCardNumbr = FocusNode();
+    focusPhoneNumbr = FocusNode();
+    focusDiscountPriceFatora = FocusNode();
+    focusNameStoreFatora = FocusNode();
 
     if (Get.arguments != null) {
       tabController?.animateTo(1);
     }
 
+    final numbrCardSherd = sharedPreferences.getInt(KeySherdPrefs.numbrCardCBC);
+
+    if (numbrCardSherd != null) {
+      print('\n');
+      print('The numbrCardSherd Not Null ');
+      print('\n');
+      getAcountStatusLoading = true;
+      update();
+      fetchAccount(numbrCardSherd.toString(), isNotFromBtn: true);
+    }
+
     if (sharedPreferences!.getBool('accountActive') == true) {
       userName.value = sharedPreferences!.getString('nameAccount').toString();
       isActive(true);
-      number.text =
-          sharedPreferences!.getInt(KeySherdPrefs.numbrCardCBC).toString();
+      number.text = numbrCardSherd.toString();
       dateCard.value = sharedPreferences!.getString('dateAccount').toString();
       walletNumber.value =
           sharedPreferences!.getInt(KeySherdPrefs.numbrCardCBC).toString();
       userName.value = sharedPreferences!.getString('nameAccount').toString();
       discountCard.value =
-          sharedPreferences!.getString('discountAccount').toString();
+          sharedPreferences.getString('discountAccount').toString();
       update();
 
       print('\n');
-      print('The Number Card CBC is ${number.text}');
+      print(
+          'The Number Card CBC is ${number.text} And Discount is $discountCard');
       print('\n');
     } else {
       isActive(false);
       update();
     }
-    // TODO: implement onInit
+
     super.onInit();
+  }
+
+  @override
+  bool checkFieldsActivateAccount() {
+    bool chekcCardNumbr = number.text.trim().isNotEmpty;
+    bool checkPhoneNumber = phone.text.trim().length >= 10;
+
+    if (chekcCardNumbr && checkPhoneNumber) {
+      return true;
+    } else {
+      if (!chekcCardNumbr) {
+        MethodsWidgetClass.dialogAlertmethod(
+            bodyMsg: '225'.tr, titleMsg: '208'.tr);
+        return false;
+      } else if (!checkPhoneNumber) {
+        MethodsWidgetClass.dialogAlertmethod(
+            bodyMsg: '226'.tr, titleMsg: '208'.tr);
+        return false;
+      }
+
+      return false;
+    }
+    // end Method
+  }
+
+  @override
+  closeKeyBoardMethod() {
+    focusCardNumbr.unfocus();
+    focusPhoneNumbr.unfocus();
+    focusDiscountPriceFatora.unfocus();
+    focusNameStoreFatora.unfocus();
+    // end Method
+  }
+
+  @override
+  changeDiscountFormat() {
+    try {
+      String txtBill = priceDiscount.text;
+
+      if (txtBill.contains(',')) {
+        txtBill.trim().replaceAll(',', '');
+      }
+
+      priceDiscount.text = MethodsClassUTls.formatNumber(
+          number: double.parse(priceDiscount.text) + 0.0);
+    } catch (e) {
+      priceDiscount.text = '';
+    }
+    // end Method
+  }
+
+  @override
+  closeKeyBoardFatoraMethod() {
+    focusDiscountPriceFatora.unfocus();
+    focusNameStoreFatora.unfocus();
+    // end Method
   }
 }

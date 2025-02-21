@@ -10,6 +10,7 @@ class TextTextFieldCustom extends StatelessWidget {
     super.key,
     required this.txtTitle,
     this.controller,
+    this.onChanged,
     this.keyboardType,
     this.inputFormatters,
     this.redOnly = false,
@@ -20,6 +21,7 @@ class TextTextFieldCustom extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onChanged;
 
   final InputBorder outLineBorder = OutlineInputBorder(
     borderRadius: BorderRadius.circular(Get.width * 0.02),
@@ -54,14 +56,16 @@ class TextTextFieldCustom extends StatelessWidget {
           // color: Colors.blue,
           child: TextFormField(
             cursorHeight: heightAppBarCustom(context) * 0.02,
+            onChanged: onChanged,
             controller: controller,
             readOnly: redOnly,
             keyboardType:
                 keyboardType ?? TextInputType.numberWithOptions(decimal: true),
             inputFormatters: inputFormatters ??
                 [
-                  FilteringTextInputFormatter.allow(RegExp(
-                      r'^\d*\.?\d*$')), // Regex to allow numbers and decimal
+                  // FilteringTextInputFormatter.allow(RegExp(
+                  //     r'^\d*\.?\d*$')), // Regex to allow numbers and decimal
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                 ],
             style: TextStyle(
               fontSize: Get.width * 0.032,

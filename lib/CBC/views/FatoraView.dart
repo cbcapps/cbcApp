@@ -1,8 +1,7 @@
 import 'dart:io'; // For handling files
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:textfield_search/textfield_search.dart';
 import 'package:ui_ecommerce/CBC/controllers/AccountController.dart';
 import 'package:ui_ecommerce/res/colors.dart';
@@ -55,7 +54,8 @@ class FatoraView extends StatelessWidget {
         ),
         SizedBox(
           child: Text(
-            'ملاحظة يجب تحميل الفاتورة مع بطاقتك cbc \n بصورة واحدة وتكون قيمة الخصم واضحة',
+            // 'ملاحظة يجب تحميل الفاتورة مع بطاقتك cbc \n بصورة واحدة وتكون قيمة الخصم واضحة',
+            '231'.tr,
             style: TextStyle(
               color: AppColors.cbcColor,
               fontSize: Get.width * 0.04,
@@ -178,10 +178,18 @@ class FatoraView extends StatelessWidget {
         height: Get.height * 0.05,
         child: TextField(
           controller: controller.priceDiscount,
+          focusNode: controller.focusDiscountPriceFatora,
+          onChanged: (value) {
+            controller.changeDiscountFormat();
+          },
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           decoration: InputDecoration(
             fillColor: Colors.white,
             filled: true,
-            hintText: 'قيمة الخصم',
+            hintText: '235'.tr,
             hintStyle: TextStyle(
               fontSize: Get.height * 0.015,
             ),
@@ -261,6 +269,11 @@ class FatoraView extends StatelessWidget {
         child: GetBuilder<AccountController>(builder: (c) {
           return TextFieldSearch(
             label: 'My Label',
+            minStringLength: 1,
+            itemsInView: 8,
+
+            // scrollbarDecoration: ScrollbarDecoration(controller: controller, theme: ScrollbarThemeData()),
+            resultsBackgroundColor: Colors.white,
             controller: controller.myController,
             future: () {
               return controller.fetchData();

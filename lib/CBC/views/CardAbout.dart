@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../../res/colors.dart';
 import '../controllers/CardController.dart';
@@ -70,7 +69,9 @@ class cardAbout extends StatelessWidget {
               //images
               Obx(() {
                 if (!controller.isLoadingAbout.value) {
-                  if (controller.cardAbout != null) {
+                  if (controller.cardAbout != null &&
+                      controller.cardAbout?.about != null &&
+                      controller.cardAbout!.about.isNotEmpty) {
                     return images();
                   } else {
                     return Center(

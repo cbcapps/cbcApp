@@ -308,7 +308,7 @@ class First_cbc extends StatelessWidget {
               margin: EdgeInsets.only(top: 20),
               alignment: Alignment.bottomCenter,
               child: Text(
-                'الاصدار : 1.0.0',
+                'الاصدار : ${HomeController.numbrVersonApp}.0',
                 style: TextStyle(
                   fontSize: Get.height * 0.013,
                   color: Colors.grey,

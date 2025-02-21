@@ -24,6 +24,7 @@ class OffersController extends GetxController {
 
   late ScrollController scrollController;
 
+  bool _isFetching = true;
   RxBool _isLoading = true.obs;
   RxBool _loadingPagination = false.obs;
   int _currentPage = 1;
@@ -78,16 +79,42 @@ class OffersController extends GetxController {
   //   // end Method
   // }
 
+  // listnerScrollControllerMethod() {
+  //   scrollController.addListener(() async {
+  //     // Set the threshold as a percentage of the max scroll extent (e.g., 80%)
+  //     double threshold = scrollController.position.maxScrollExtent * 0.8;
+
+  //     // Trigger the method if the current position exceeds the threshold
+  //     if (scrollController.position.pixels >= threshold) {
+  //       if (!_loadingPagination.value) {
+  //         _loadingPagination.value = true;
+  //         await fetchAllOffers();
+  //         _loadingPagination.value = false;
+  //       }
+  //     }
+  //   });
+  // }
+
   listnerScrollControllerMethod() {
     scrollController.addListener(() async {
-      // Set the threshold as a percentage of the max scroll extent (e.g., 80%)
-      double threshold = scrollController.position.maxScrollExtent * 0.8;
+      if (_isFetching) return; // Prevent multiple calls
 
-      // Trigger the method if the current position exceeds the threshold
+      // Check if all items are already loaded
+
+      if (_listOffers.isNotEmpty) {
+        final totalItems = _listOffers[0].totalNumberItems;
+        if (_listOffers.length >= totalItems) return;
+      }
+
+      final threshold = scrollController.position.maxScrollExtent;
       if (scrollController.position.pixels >= threshold) {
-        if (!_loadingPagination.value) {
-          _loadingPagination.value = true;
+        _isFetching = true; // Set flag to block concurrent requests
+        _loadingPagination.value = true;
+
+        try {
           await fetchAllOffers();
+        } finally {
+          _isFetching = false; // Reset flag even if error occurs
           _loadingPagination.value = false;
         }
       }

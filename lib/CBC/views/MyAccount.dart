@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:ui_ecommerce/CBC/controllers/AccountController.dart';
+import 'package:ui_ecommerce/CBC/widgets/loading_widget/progress_circular_cus.dart';
 import 'package:ui_ecommerce/res/colors.dart';
+import 'package:ui_ecommerce/res/method_utls.dart';
 
 class MyAccount extends StatelessWidget {
   MyAccount({super.key});
@@ -22,17 +24,23 @@ class MyAccount extends StatelessWidget {
       color: Colors.white,
       child: GetBuilder<AccountController>(
         builder: (builder) {
-          if (builder.isActive.value) {
-            return Active();
-          } else {
-            return notActive();
-          }
+          return builder.getAcountStatusLoading
+              ? ProgressCircularWidgetCustom()
+              : builder.isActive.value
+                  ? Active()
+                  : notActive();
         },
       ),
     );
   }
 
   Widget Active() {
+    double discountDouble = 0.0;
+    try {
+      discountDouble = double.parse(controller.discountCard.value.toString());
+    } catch (e) {
+      discountDouble = 0.0;
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -47,16 +55,41 @@ class MyAccount extends StatelessWidget {
           ),
         ),
         SizedBox(
-            child: Text(
-          '123'.tr,
-          style: TextStyle(
-              color: AppColors.cbcGreen,
-              fontSize: Get.width * 0.04,
-              fontWeight: FontWeight.bold),
-        )),
-        SizedBox(
-          height: Get.width * 0.05,
+          child: Text(
+            '123'.tr,
+            style: TextStyle(
+                color: AppColors.cbcGreen,
+                fontSize: Get.width * 0.04,
+                fontWeight: FontWeight.bold),
+          ),
         ),
+
+        //
+        // Showing Card No Active in Different way
+        // Container(
+        //   width: Get.width * 0.5,
+        //   height: Get.width * 0.3,
+        //   decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+        //   child: Icon(
+        //     Icons.close,
+        //     color: Colors.white,
+        //     size: Get.width * 0.2,
+        //   ),
+        // ),
+        // SizedBox(height: Get.width * 0.02),
+        // SizedBox(
+        //   child: Text(
+        //     '236'.tr,
+        //     maxLines: 5,
+        //     textAlign: TextAlign.center,
+        //     overflow: TextOverflow.ellipsis,
+        //     style: TextStyle(
+        //         color: AppColors.cbcRed,
+        //         fontSize: Get.width * 0.04,
+        //         fontWeight: FontWeight.bold),
+        //   ),
+        // ),
+        SizedBox(height: Get.width * 0.05),
         Padding(
           padding:
               EdgeInsets.only(left: Get.width * 0.15, right: Get.width * 0.15),
@@ -80,14 +113,14 @@ class MyAccount extends StatelessWidget {
                   color: AppColors.cbcColor,
                 ),
                 child: Center(
-                  child: Text(
-                    controller.discountCard.toString() + ' IQD',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: Get.width * 0.04),
-                  ),
-                ),
+                    child: Text(
+                  MethodsClassUTls.formatNumber(number: discountDouble) +
+                      ' IQD',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: Get.width * 0.04),
+                )),
               ),
               SizedBox(
                 height: Get.width * 0.05,

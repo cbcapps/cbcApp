@@ -101,13 +101,17 @@ class HieghestStoresdDinar extends StatelessWidget {
       ),
       itemCount: controller.highestListDinnar.length + 1,
       itemBuilder: (BuildContext context, int index) {
-        if (controller.highestList.length <= index) {
+        if (controller.highestListDinnar.length == index) {
           return Obx(
             () => controller.loadingPaginationHeightestDiscontDinnar.value
                 ? ProgressCircularWidgetCustom()
                 : Container(),
           );
         } else {
+          print('\n');
+          print(
+              'Scree Dinnar index is $index And Lenght is ${controller.highestListDinnar.length}');
+          print('\n');
           final Item = controller.highestListDinnar[index];
           return DiscountItem(
               Item.image, Item.store, Item.storeId, Item.discount);

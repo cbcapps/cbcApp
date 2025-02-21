@@ -108,6 +108,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: locale(),
+      // Wrap the child with MediaQuery to override text scaling
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(1.0)),
+          child: child!,
+        );
+      },
       locale: locale_controller.inliaLang,
       title: 'CBC',
       debugShowCheckedModeBanner: false,
@@ -115,6 +123,10 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Tajawal',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: Colors.amber,
+          circularTrackColor: Colors.blue,
+        ),
         useMaterial3: true,
       ),
       initialBinding: LandingCbc_bindings(),

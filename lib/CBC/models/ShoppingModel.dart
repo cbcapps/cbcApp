@@ -1,8 +1,10 @@
-List<ShoppingModel> shoppingModelFromJson(dynamic extracted) =>
-    List<ShoppingModel>.from(extracted.map((x) => ShoppingModel.fromJson(x)));
+List<ShoppingModel> shoppingModelFromJson(dynamic extracted, int? totalNumbr) =>
+    List<ShoppingModel>.from(
+        extracted.map((x) => ShoppingModel.fromJson(x, totalNumbr)));
 
 class ShoppingModel {
   int id;
+  int? totalNumberItems;
   int isFavorite;
   String name;
   String logo;
@@ -14,6 +16,7 @@ class ShoppingModel {
 
   ShoppingModel({
     required this.id,
+    required this.totalNumberItems,
     required this.isFavorite,
     required this.name,
     required this.logo,
@@ -22,13 +25,15 @@ class ShoppingModel {
     required this.discountCount,
   });
 
-  factory ShoppingModel.fromJson(Map<String, dynamic> json) => ShoppingModel(
+  factory ShoppingModel.fromJson(Map<String, dynamic> json, int? totalNumbr) =>
+      ShoppingModel(
         id: json["id"],
+        totalNumberItems: totalNumbr,
         name: json["name"],
         logo: json["imgPath"],
         facebook: json["facebook"],
         instagram: json["instagram"],
-        isFavorite: json["favoriteStatus"],
+        isFavorite: json["favoriteStatus"] ?? 0,
         discountCount: json["discount"].toString(),
       );
 

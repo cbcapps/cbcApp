@@ -7,7 +7,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:ui_ecommerce/CBC/views/EvaluationView.dart';
 import 'package:ui_ecommerce/CBC/views/FatoraView.dart';
-import 'package:ui_ecommerce/CBC/views/SearchView.dart';
 import 'package:ui_ecommerce/CBC/widgets/joint_widgets/appbar_shoping_ofers_page_cus.dart';
 import 'package:ui_ecommerce/res/colors.dart';
 import 'package:ui_ecommerce/res/images_path.dart';
@@ -16,11 +15,13 @@ import '../../res/method_utls.dart';
 import '../controllers/Home_controller.dart';
 import '../models/TestItem.dart';
 
+import '../widgets/home_page/search_txt_field_type_ahead_cus.dart';
 import '../widgets/joint_widgets/notification_widget_cus.dart';
 import '../widgets/joint_widgets/pop_menue_home_offer_page_cus.dart';
 import '../widgets/lacation/open_street_cus.dart';
 import '../widgets/loading_widget/progress_circular_cus.dart';
 import '../widgets/joint_widgets/search_text_input_cus.dart';
+import 'Messages.dart';
 import 'StorePage.dart';
 
 class HomeView extends StatelessWidget {
@@ -41,21 +42,31 @@ class HomeView extends StatelessWidget {
         //   children: [
         Scaffold(
       appBar: appBarShopingOfersPageCustom(
-          AppImages.logoCbcEmpty,
-          '0'.tr,
-          Get.height * 0.05,
-          Get.width * 0.15,
-          PopMenueHomeOfferPageCustom(),
-          builIconNotifcation(),
-          null,
-          true),
+        AppImages.logoCbcEmpty,
+        '0'.tr,
+        Get.height * 0.05,
+        Get.width * 0.15,
+        PopMenueHomeOfferPageCustom(
+          onOpened: () {
+            controller.unFocusSearchField();
+          },
+        ),
+        builIconNotifcation(),
+        null,
+        true,
+        onTap: () {
+          controller.unFocusSearchField();
+          Get.toNamed(PagesName.shopingFavoriteScrn);
+        },
+      ),
       body: RefreshIndicator(
         child: content(context),
         onRefresh: () async {
           controller.fetchCountMessages();
           controller.fetchRecently();
           controller.fetchHighest();
-          controller.fetchCities();
+          controller.fetchHighestDinnar();
+          controller.fetchCitiesMethod();
           controller.fetchSliders();
         },
       ),
@@ -75,10 +86,51 @@ class HomeView extends StatelessWidget {
                 top: Get.height * 0.015),
             child: Row(
               children: [
-                searchTextInput(), // إدخال النص للبحث
+                // searchTextInput(), // إدخال النص للبحث
+
+                SearchTxtFieldTypeAheadCustom(
+                  myController: controller.myController,
+                  myFocusNode: controller.focusNodeSearch,
+                  suggestionsCallbackCus: (query) async {
+                    List<TestItem> listItem = [];
+                    if (query.isNotEmpty) {
+                      await Future.delayed(
+                        Duration(milliseconds: 2000),
+                        () async {
+                          listItem = await controller
+                              .fetchData(controller.myController.text.trim());
+                        },
+                      );
+                    }
+                    if (query.isNotEmpty && listItem.isEmpty) {
+                      listItem.add(TestItem(label: '224'.tr, value: 10000000));
+                    }
+
+                    return listItem;
+                    //  end Method
+                  },
+                  onSelectedCus: (item) {
+                    print('\n');
+                    print(
+                        'Screen The Selcted Item is ${item.label} And Id ${item.value}');
+                    print('\n');
+                    if (item.value != 10000000) {
+                      Get.to(() => StorePage(), arguments: [
+                        {
+                          "id": item.value,
+                          "branch": 'Yes',
+                        }
+                      ]);
+                      controller.focusNodeSearch.unfocus();
+                      controller.myController.clear();
+                    }
+                  },
+                ),
+
                 SizedBox(width: Get.width * 0.02),
                 InkWell(
                   onTap: () {
+                    controller.focusNodeSearch.unfocus();
                     _showGovernorateDialog(
                         context); // عرض الحوار لاختيار المحافظة
                   },
@@ -90,6 +142,8 @@ class HomeView extends StatelessWidget {
                     // ),
                     width: Get.width * 0.1,
                     height: Get.height * 0.05,
+                    // height: Get.height * 0.06,
+                    // height: double.infinity,
                     child: SvgPicture.asset(
                       AppImages.filterSquareBlue,
                       fit: BoxFit.fill,
@@ -155,7 +209,7 @@ class HomeView extends StatelessWidget {
                                 print('\n');
                                 print('UnFocus Method');
                                 print('\n');
-                                FocusScope.of(context).unfocus();
+                                controller.unFocusSearchField();
                                 Get.to(() => FatoraView());
                               },
                               child: SizedBox(
@@ -169,6 +223,7 @@ class HomeView extends StatelessWidget {
                             ),
                             InkWell(
                               onTap: () {
+                                controller.unFocusSearchField();
                                 Get.to(() => EvaluationView());
                               },
                               child: SizedBox(
@@ -281,6 +336,7 @@ class HomeView extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
+                          controller.unFocusSearchField();
                           Get.toNamed(PagesName.mapStoreScren);
                         },
                         child: Container(
@@ -370,6 +426,7 @@ class HomeView extends StatelessWidget {
       {bool isDinnar = false, bool isDiscountString = false}) {
     return GestureDetector(
       onTap: () {
+        controller.unFocusSearchField();
         Get.to(() => StorePage(), arguments: [
           {"id": id}
         ]);
@@ -468,6 +525,7 @@ class HomeView extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
+              controller.unFocusSearchField();
               Get.toNamed('${page}');
             },
             child: Row(
@@ -504,7 +562,13 @@ class HomeView extends StatelessWidget {
             hintTxt: '88'.tr,
             controllerCus: controllerr,
             futureFunction: () {
-              return controller.fetchData();
+              print('\n');
+              print(
+                  '==================----------------------===================');
+              print('\n');
+              print('The Future Function of Search Data is Called');
+              print('\n');
+              return controller.fetchData(controllerr.text);
             },
             getSelectedValueCus: (value) {
               if (value != null) {
@@ -622,6 +686,7 @@ class HomeView extends StatelessWidget {
     if (id != -1) {
       return GestureDetector(
         onTap: () {
+          controller.unFocusSearchField();
           Get.toNamed('categories_cbc', arguments: [
             {'id': id, 'city': title}
           ]);
@@ -674,6 +739,7 @@ class HomeView extends StatelessWidget {
     } else {
       return GestureDetector(
         onTap: () {
+          controller.unFocusSearchField();
           controller.onItemTapped(3);
         },
         child: Container(
@@ -745,7 +811,8 @@ class HomeView extends StatelessWidget {
                           onTap: () {
                             // عند اختيار المحافظة، تحديث قيمة selectedGovernorate وعرض المناطق
                             controller.selectedGovernorate.value = city.title;
-                            controller.fetchSubCity(city.title); // جلب المناطق
+                            controller
+                                .fetchSubCityMethod(city.title); // جلب المناطق
                           },
                           child: Container(
                             padding: EdgeInsets.all(6),
@@ -795,51 +862,58 @@ class HomeView extends StatelessWidget {
                         // منطقة ثابتة للمناطق قابلة للتمرير
                         Container(
                           height: 200, // تحديد الارتفاع الثابت
-                          child: SingleChildScrollView(
-                            child: Wrap(
-                              spacing: 4.0,
-                              runSpacing: 8.0,
-                              children: [
-                                for (final area in controller.selectedAreas)
-                                  GestureDetector(
-                                    onTap: () {
-                                      // عند اختيار المنطقة، تحديث selectedArea
-                                      controller.selectedArea.value =
-                                          area; // تحديد المنطقة
-                                    },
-                                    child: Container(
-                                      width: (Get.width - 32) /
-                                          4, // نفس عرض المربعات
-                                      padding: EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: controller.selectedArea.value ==
-                                                area
-                                            ? Colors
-                                                .green // تغيير اللون عند الاختيار
-                                            : Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 4,
-                                            offset: Offset(2, 2),
+                          // color: Colors.amber,
+                          child: controller.isLoadingFetchAreas.value
+                              ? ProgressCircularWidgetCustom()
+                              : SingleChildScrollView(
+                                  child: Wrap(
+                                    spacing: 4.0,
+                                    runSpacing: 8.0,
+                                    children: [
+                                      for (final area
+                                          in controller.selectedAreas)
+                                        GestureDetector(
+                                          onTap: () {
+                                            // عند اختيار المنطقة، تحديث selectedArea
+                                            controller.selectedArea.value =
+                                                area; // تحديد المنطقة
+                                          },
+                                          child: Container(
+                                            width: (Get.width - 32) /
+                                                4, // نفس عرض المربعات
+                                            padding: EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: controller
+                                                          .selectedArea.value ==
+                                                      area
+                                                  ? Colors
+                                                      .green // تغيير اللون عند الاختيار
+                                                  : Colors.grey[200],
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Colors.black26,
+                                                  blurRadius: 4,
+                                                  offset: Offset(2, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                area,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          area,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
                                         ),
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                              ],
-                            ),
-                          ),
+                                ),
                         ),
                         // إظهار نص "تمرير لعرض المزيد" إذا كان هناك العديد من المناطق
                         if (controller.selectedAreas.length >
@@ -861,6 +935,10 @@ class HomeView extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () {
+                  print('\n');
+                  print('The Close Method');
+                  print('\n');
+                  controller.setValueZero();
                   Navigator.of(context).pop();
                 },
                 child: Text('إغلاق'),
@@ -869,8 +947,16 @@ class HomeView extends StatelessWidget {
                 onPressed: () {
                   if (controller.selectedArea.value.isNotEmpty) {
                     print('تم تحديد المنطقة: ${controller.selectedArea.value}');
-                    Get.to(
-                      () => Searchview(),
+                    print('\n');
+                    print(
+                        'The SubCity is  and Value is ${controller.selectedArea.value}');
+                    print('\n');
+                    print(
+                        'The SubCity is  and Value is ${controller.selectedGovernorate.value}');
+                    print('\n');
+                    Get.toNamed(
+                      // () => Searchview(),
+                      PagesName.searchView,
                       arguments: [
                         {
                           'subCity': controller.selectedArea.value,
@@ -878,6 +964,10 @@ class HomeView extends StatelessWidget {
                         } // إرسال id المنطقة
                       ],
                     );
+
+                    print('\n');
+                    print('Screen Home We Go Now');
+                    print('\n');
                   } else {
                     print('لم يتم تحديد المنطقة');
                     // يمكنك أيضًا عرض رسالة للمستخدم أو تأكيد تحديد المنطقة
@@ -982,11 +1072,15 @@ class HomeView extends StatelessWidget {
   Widget? builIconNotifcation() {
     return Obx(
       () => NotificationWidgetCustom(
-        showCartBadge: controller.showCartBadge.value,
-        backgroundMessagesLength: controller.backgroundMessagesLength.value,
-        // showCartBadge: true,
-        // backgroundMessagesLength: 1,
-      ),
+          showCartBadge: controller.showCartBadge.value,
+          backgroundMessagesLength: controller.backgroundMessagesLength.value,
+          onTap: () {
+            controller.unFocusSearchField();
+            Get.to(() => MessagesView());
+          }
+          // showCartBadge: true,
+          // backgroundMessagesLength: 1,
+          ),
       //
     );
   }

@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 
 import '../../res/height_width_cus.dart';
 import '../../res/images_path.dart';
-import '../controllers/ShopingController.dart';
+import '../controllers/FavoriteUserItemsControler.dart';
+
 import '../widgets/joint_widgets/appbar_shoping_ofers_page_cus.dart';
 import '../widgets/loading_widget/progress_circular_cus.dart';
 import '../widgets/shoping_page/item_sliver_list_cus.dart';
@@ -11,7 +12,8 @@ import '../widgets/shoping_page/item_sliver_list_cus.dart';
 class FavoriteShopingItemScreen extends StatelessWidget {
   FavoriteShopingItemScreen({super.key});
 
-  final Shopingcontroller _shopingController = Get.find();
+  // final Shopingcontroller _shopingController = Get.find();
+  final FavoriteUserItemsControler _controler = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +50,15 @@ class FavoriteShopingItemScreen extends StatelessWidget {
               ),
             ),
             //  height: heightAppBarCustom(context) * 0.04,
-            GetBuilder<Shopingcontroller>(
+            GetBuilder<FavoriteUserItemsControler>(
               builder: (_) {
                 return Container(
                   // color: Colors.amberAccent,
                   // height: Getheight * 0.46,
                   height: heightAppBarCustom(context) * 0.9,
-                  child: _shopingController.isLoadingFavoritePage
+                  child: _controler.isLoadingFavoritePage
                       ? const ProgressCircularWidgetCustom()
-                      : _shopingController.listShopingUserFavorite.isNotEmpty
+                      : _controler.listShopingUserFavorite.isNotEmpty
                           ? buildItemsShoping()
                           : Center(
                               child: Text('${'20'.tr}'),
@@ -73,26 +75,25 @@ class FavoriteShopingItemScreen extends StatelessWidget {
   buildItemsShoping() {
     return RefreshIndicator(
       onRefresh: () async {
-        await _shopingController.onRefreshMethod();
+        await _controler.fetchAllShoppingStoreFavoriteUser();
       },
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        controller: _shopingController.scrollControllerFavoriteUser,
+        controller: _controler.scrollControllerFavoriteUser,
         slivers: [
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                bool check = index ==
-                    (_shopingController.listShopingUserFavorite.length);
+                bool check =
+                    index == (_controler.listShopingUserFavorite.length);
 
-                if (index >=
-                    _shopingController.listShopingUserFavorite.length) {
+                if (index >= _controler.listShopingUserFavorite.length) {
                   // return Container(
                   //   height: 100,
                   //   color: Colors.red,
                   // );
                   return Obx(
-                    () => _shopingController.loadingPaginationFavoritePage.value
+                    () => _controler.loadingPaginationFavoritePage.value
                         ? Column(
                             children: [
                               ProgressCircularWidgetCustom(),
@@ -106,31 +107,28 @@ class FavoriteShopingItemScreen extends StatelessWidget {
                 } else {
                   print('\n');
                   print(
-                      'Screen the index = $index and Lenght is ${_shopingController.listShopingUserFavorite.length}');
+                      'Screen the index = $index and Lenght is ${_controler.listShopingUserFavorite.length}');
                   print('\n');
-                  final itemShoping =
-                      _shopingController.listShopingUserFavorite[index];
+                  final itemShoping = _controler.listShopingUserFavorite[index];
                   return ItemSliverListCustom(
                     isIndexZero: index == 0,
                     onTapFacbook: () {
-                      _shopingController.openurl(itemShoping.facebook);
+                      _controler.openurl(itemShoping.facebook);
                     },
                     onTapInstgram: () {
-                      _shopingController.openurl(itemShoping.instagram);
+                      _controler.openurl(itemShoping.instagram);
                     },
                     checkLastItem: check,
                     shoppingModel: itemShoping,
                     isFavorite: itemShoping.isFavorite == 1,
-                    // _shopingController.checkItemIfFavorite(itemShoping.id),
-                    // isFavorite: _shopingController.isFavorite,
                     onTapFavorite: () {
-                      _shopingController
+                      _controler
                           .removeItemFromListShopingFavorite(itemShoping.id);
                     },
                   );
                 }
               },
-              childCount: _shopingController.listShopingUserFavorite.length + 1,
+              childCount: _controler.listShopingUserFavorite.length + 1,
             ),
           ),
         ],
